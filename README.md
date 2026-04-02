@@ -4,6 +4,20 @@ Real-time space mission dashboard tracking Artemis II and other active spacecraf
 
 ![OrionWatch Dashboard](https://img.shields.io/badge/status-live-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue) ![React](https://img.shields.io/badge/React-19-61dafb) ![Three.js](https://img.shields.io/badge/Three.js-0.172-black)
 
+## Screenshots
+
+### Main Dashboard — 3D View + Space Weather
+![Main Dashboard](docs/screenshot-main.png)
+
+### Deep Space Network Status
+![DSN Tab](docs/screenshot-dsn.png)
+
+### Mission Profile Chart
+![Mission Profile](docs/screenshot-profile.png)
+
+### Media — Blog, Images, DSCOVR Earth, APOD
+![Media Tab](docs/screenshot-media.png)
+
 ## Features
 
 ### Mission Tracking
