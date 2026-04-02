@@ -4,3 +4,5 @@ dist
 .env
 .env.*
 .claude/
+CLAUDE.md
+COMPETITOR_ANALYSIS.md
