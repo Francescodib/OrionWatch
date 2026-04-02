@@ -1,0 +1,157 @@
+# OrionWatch
+
+Real-time space mission dashboard tracking Artemis II and other active spacecraft. Built as a pure frontend SPA consuming only public APIs — no backend, no auth, no secrets.
+
+![OrionWatch Dashboard](https://img.shields.io/badge/status-live-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue) ![React](https://img.shields.io/badge/React-19-61dafb) ![Three.js](https://img.shields.io/badge/Three.js-0.172-black)
+
+## Features
+
+### Mission Tracking
+- **6 mission targets**: Artemis II (live), Artemis I (historical), ISS, Voyager 1, James Webb Space Telescope, Demo (offline)
+- **Real-time telemetry** from JPL Horizons API: position, velocity, distance from Earth/Moon
+- **Derived metrics**: Mach number, signal delay, G-force, cumulative path distance, mission progress %
+- **Orbital elements**: semi-major axis, eccentricity, inclination, period, periapsis/apoapsis
+- **Ground track**: sub-spacecraft latitude/longitude with region identification
+- **Angular size**: Earth and Moon apparent size from spacecraft perspective
+
+### 3D Visualization
+- Interactive Three.js scene with Earth (textured), Moon, and spacecraft
+- Full mission trajectory with color gradient (past) and dashed prediction (future)
+- Moon orbital path visualization
+- Distance reference rings (60k, 150k, 280k, 384k km + Apollo 13 record at 400,171 km)
+- Sun direction indicator and ecliptic reference grid
+- Starfield with twinkle animation
+- Spacecraft oriented along velocity vector
+- Zoom/pan/orbit controls with "Locate Craft" button
+
+### Space Weather
+- **NOAA SWPC data**: 24-hour solar wind (Bt/Bz magnetic field), plasma speed/density
+- **Planetary K-index**: color-coded bar chart with storm level indicators
+- **Solar flare alerts**: real-time GOES X-ray flare classification (B/C/M/X)
+- **Aurora forecast**: OVATION model with visibility latitude estimates
+- **Crew radiation estimate**: empirical model based on distance + Kp + solar wind
+
+### Deep Space Network
+- Live antenna status from NASA DSN Now API
+- Three stations: Goldstone, Madrid, Canberra
+- Per-dish signal direction, data rate, and tracked spacecraft
+
+### Additional Data
+- **Near Earth Objects**: daily count from NASA NEO API with closest approach details
+- **Earth from DSCOVR**: real EPIC camera photo from Lagrange point L1
+- **Astronomy Picture of the Day**: NASA APOD integration
+- **Mission blog**: RSS feed from NASA Artemis blog
+- **Mission images**: NASA Images API search
+
+### Interface
+- Enterprise-grade layout: dense sidebar with all metrics, maximized 3D scene, tabbed secondary content
+- HUD-style panel design with corner brackets and cyan/amber accent system
+- Lucide React icons throughout
+- Dark space aesthetic (Space Grotesk + Space Mono typography)
+- Fully responsive (desktop + mobile)
+- Zero scroll for critical data on desktop
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + Vite 6 |
+| Language | TypeScript (strict mode) |
+| 3D | Three.js 0.172 |
+| Charts | Recharts 2 |
+| State | Zustand 5 |
+| Styling | Tailwind CSS 4 |
+| Icons | Lucide React |
+| Orbital | satellite.js 5 (ISS only, dynamic import) |
+
+## Data Sources
+
+| Source | API | Update Rate |
+|---|---|---|
+| Spacecraft state vectors | JPL Horizons | 60s |
+| Solar wind / Kp index | NOAA SWPC | 60s |
+| Solar flares | NOAA GOES | 60s |
+| Aurora forecast | NOAA OVATION | 120s |
+| DSN antenna status | NASA DSN Now | 10s |
+| ISS position | Celestrak TLE + SGP4 | 10s |
+| Mission images | NASA Images API | 300s |
+| Near Earth Objects | NASA NEO API | 600s |
+| Earth photo | NASA EPIC/DSCOVR | 600s |
+| Astronomy POTD | NASA APOD | 3600s |
+| Mission blog | NASA RSS via rss2json | 120s |
+
+## CORS Strategy
+
+Since all APIs are fetched directly from the browser:
+
+1. **Direct fetch** (4s timeout)
+2. **Cloudflare Worker proxy** (if `VITE_HORIZONS_PROXY_URL` env var is set)
+3. **Public CORS proxies**: allorigins.win, corsproxy.io
+4. **Demo fallback**: after 3 consecutive failures, auto-switches to simulated data
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Production build
+npm run build
+```
+
+The app works out of the box with no configuration. All APIs are public and unauthenticated.
+
+### Optional: Cloudflare Worker Proxy
+
+For more reliable Horizons API access, deploy a minimal Cloudflare Worker and set:
+
+```
+VITE_HORIZONS_PROXY_URL=https://your-worker.workers.dev
+```
+
+## Performance
+
+| Metric | Value |
+|---|---|
+| Initial JS bundle | ~82 kB gzipped |
+| Three.js chunk (lazy) | ~126 kB gzipped |
+| Recharts chunk (lazy) | ~114 kB gzipped |
+| Target frame rate | 60 fps |
+| Time to Interactive | < 2.5s |
+
+Three.js and Recharts are lazy-loaded after first paint. satellite.js is dynamically imported only when the ISS target is selected.
+
+## Project Structure
+
+```
+src/
+  layouts/          # DashboardLayout, Sidebar, PanelGrid, TopBar, BottomBar
+  components/
+    ui/             # Panel, TabBar, StatusDot, PanelSkeleton, Toast
+    telemetry/      # PositionMetrics, SidebarTelemetry, OrbitalElements, GroundTrack
+    mission/        # TargetSwitcher, MilestoneTimeline, CrewCard
+    weather/        # SpaceWeatherPanel
+    dsn/            # DsnPanel
+    media/          # ImageFeed, BlogFeed, EpicEarth, NeoPanel, ApodPanel
+    scene/          # SceneContainer
+  scene/            # Three.js: SceneCore, Earth, Moon, Spacecraft, Trajectory, DistanceRings
+  charts/           # SolarWindChart, KpIndexChart, DistanceChart
+  data/
+    targets/        # Mission configs: artemis-2, artemis-1, iss, voyager-1, webb, demo
+    adapters/       # API parsers: horizons, noaa, dsn, epic, neo, apod, aurora, solar-flares
+    hooks/          # useSpaceWeather, useDsn, useExtraData
+    utils/          # CORS fallback, polling
+  store/            # Zustand: useTargetStore, useTelemetryStore, useDashboardStore
+  styles/           # globals.css, animations.css
+```
+
+## Author
+
+**Francesco di Biase**
+
+## License
+
+MIT

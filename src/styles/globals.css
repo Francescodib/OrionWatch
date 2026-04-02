@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@import "./animations.css";
+
+@theme {
+  --color-space-bg: #080c16;
+  --color-space-surface: #0d1220;
+  --color-space-panel: #131a2e;
+  --color-space-border: rgba(0, 212, 255, 0.10);
+  --color-space-border-bright: rgba(0, 212, 255, 0.25);
+
+  --color-cyan: #00d4ff;
+  --color-cyan-dim: rgba(0, 212, 255, 0.6);
+  --color-amber: #ff6b35;
+  --color-amber-dim: rgba(255, 107, 53, 0.6);
+  --color-green: #7fff00;
+  --color-green-dim: rgba(127, 255, 0, 0.6);
+  --color-red: #ff3333;
+  --color-red-dim: rgba(255, 51, 51, 0.6);
+
+  --color-text-primary: #e0e6ed;
+  --color-text-secondary: #8899aa;
+  --color-text-muted: #556677;
+
+  --font-heading: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --shadow-glow-cyan: 0 0 20px rgba(0, 212, 255, 0.08), 0 0 4px rgba(0, 212, 255, 0.06);
+  --shadow-glow-amber: 0 0 20px rgba(255, 107, 53, 0.08), 0 0 4px rgba(255, 107, 53, 0.06);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-space-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+#root {
+  height: 100dvh;
+  width: 100vw;
+  /* Subtle grid pattern overlay */
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--color-text-primary);
+}
