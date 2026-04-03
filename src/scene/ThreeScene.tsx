@@ -24,8 +24,21 @@ export interface ThreeSceneProps {
 }
 
 /**
- * Linearly interpolate a SpacecraftState at a given epoch from a sorted list of states.
+ * Cubic Hermite interpolation for position using position + velocity
+ * at both endpoints. This produces physically smooth motion instead
+ * of the jerky linear interpolation between 10-min data points.
+ *
+ * Hermite basis: h00(t)=2t³-3t²+1, h10(t)=t³-2t²+t, h01(t)=-2t³+3t², h11(t)=t³-t²
  */
+function hermite(p0: number, v0: number, p1: number, v1: number, t: number): number {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (2 * t3 - 3 * t2 + 1) * p0
+       + (t3 - 2 * t2 + t) * v0
+       + (-2 * t3 + 3 * t2) * p1
+       + (t3 - t2) * v1;
+}
+
 function interpolateState(
   states: SpacecraftState[],
   epochMs: number,
@@ -33,7 +46,6 @@ function interpolateState(
   if (states.length === 0) return null;
   if (states.length === 1) return states[0]!;
 
-  // Clamp to range
   const first = states[0]!;
   const last = states[states.length - 1]!;
   if (epochMs <= first.timestamp.getTime()) return first;
@@ -44,34 +56,38 @@ function interpolateState(
   let hi = states.length - 1;
   while (lo < hi - 1) {
     const mid = (lo + hi) >>> 1;
-    if (states[mid]!.timestamp.getTime() <= epochMs) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
+    if (states[mid]!.timestamp.getTime() <= epochMs) lo = mid;
+    else hi = mid;
   }
 
   const a = states[lo]!;
   const b = states[hi]!;
   const tA = a.timestamp.getTime();
   const tB = b.timestamp.getTime();
-  const frac = tB !== tA ? (epochMs - tA) / (tB - tA) : 0;
+  const dt = (tB - tA) / 1000; // seconds between points
+  const frac = dt > 0 ? (epochMs - tA) / (tB - tA) : 0;
 
+  // Hermite interpolation for position using velocity tangents
+  // Velocity is in km/s, dt is in seconds, so tangent = velocity * dt
+  const posKm: [number, number, number] = [
+    hermite(a.positionKm[0], a.velocityKmS[0] * dt, b.positionKm[0], b.velocityKmS[0] * dt, frac),
+    hermite(a.positionKm[1], a.velocityKmS[1] * dt, b.positionKm[1], b.velocityKmS[1] * dt, frac),
+    hermite(a.positionKm[2], a.velocityKmS[2] * dt, b.positionKm[2], b.velocityKmS[2] * dt, frac),
+  ];
+
+  // Linear interpolation for scalar values (smooth enough)
   const lerp = (x: number, y: number) => x + (y - x) * frac;
+  const distEarth = Math.sqrt(posKm[0] ** 2 + posKm[1] ** 2 + posKm[2] ** 2);
 
   return {
     timestamp: new Date(epochMs),
-    positionKm: [
-      lerp(a.positionKm[0], b.positionKm[0]),
-      lerp(a.positionKm[1], b.positionKm[1]),
-      lerp(a.positionKm[2], b.positionKm[2]),
-    ],
+    positionKm: posKm,
     velocityKmS: [
       lerp(a.velocityKmS[0], b.velocityKmS[0]),
       lerp(a.velocityKmS[1], b.velocityKmS[1]),
       lerp(a.velocityKmS[2], b.velocityKmS[2]),
     ],
-    distanceFromEarthKm: lerp(a.distanceFromEarthKm, b.distanceFromEarthKm),
+    distanceFromEarthKm: distEarth,
     distanceFromMoonKm: lerp(a.distanceFromMoonKm, b.distanceFromMoonKm),
     speedKmS: lerp(a.speedKmS, b.speedKmS),
   };
