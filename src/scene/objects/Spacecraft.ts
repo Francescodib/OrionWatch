@@ -116,7 +116,7 @@ export class SpacecraftObject {
       this.mesh.rotation.y += 0.01;
     }
 
-    // Billboard: rings face camera (convert world quaternion to group-local)
+    // Billboard + distance-adaptive scale: rings grow with camera distance
     if (camera) {
       const camWorldQuat = camera.quaternion;
       const groupWorldQuat = this.group.quaternion.clone().invert();
@@ -124,6 +124,13 @@ export class SpacecraftObject {
       this.innerRingMesh.quaternion.copy(localQuat);
       this.outerRingMesh.quaternion.copy(localQuat);
       this.highlightMesh.quaternion.copy(localQuat);
+
+      // Scale rings proportional to camera distance so they stay visible at any zoom
+      const dist = camera.position.distanceTo(this.group.position);
+      const scale = Math.max(1, dist / 30);
+      this.innerRingMesh.scale.setScalar(scale);
+      this.outerRingMesh.scale.setScalar(scale);
+      this.highlightMesh.scale.setScalar(scale);
     }
 
     // Gentle pulse on rings
