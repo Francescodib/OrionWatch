@@ -116,11 +116,14 @@ export class SpacecraftObject {
       this.mesh.rotation.y += 0.01;
     }
 
-    // Billboard: all rings face camera
+    // Billboard: rings face camera (convert world quaternion to group-local)
     if (camera) {
-      this.innerRingMesh.quaternion.copy(camera.quaternion);
-      this.outerRingMesh.quaternion.copy(camera.quaternion);
-      this.highlightMesh.quaternion.copy(camera.quaternion);
+      const camWorldQuat = camera.quaternion;
+      const groupWorldQuat = this.group.quaternion.clone().invert();
+      const localQuat = groupWorldQuat.multiply(camWorldQuat);
+      this.innerRingMesh.quaternion.copy(localQuat);
+      this.outerRingMesh.quaternion.copy(localQuat);
+      this.highlightMesh.quaternion.copy(localQuat);
     }
 
     // Gentle pulse on rings
