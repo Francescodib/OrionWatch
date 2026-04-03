@@ -81,7 +81,6 @@ export class EarthObject {
    */
   loadTexture(): void {
     const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin("anonymous");
     const url = `${import.meta.env.BASE_URL || "/"}textures/earth_2k.jpg`;
     loader.load(
       url,
@@ -93,7 +92,7 @@ export class EarthObject {
       },
       undefined,
       (err) => {
-        console.warn("Earth texture failed to load:", url, err);
+        console.warn("Earth texture failed:", url, err);
       },
     );
   }
