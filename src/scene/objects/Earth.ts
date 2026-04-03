@@ -81,8 +81,10 @@ export class EarthObject {
    */
   loadTexture(): void {
     const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("anonymous");
+    const url = `${import.meta.env.BASE_URL || "/"}textures/earth_2k.jpg`;
     loader.load(
-      `${import.meta.env.BASE_URL || "/"}textures/earth_2k.jpg`,
+      url,
       (texture) => {
         texture.colorSpace = THREE.SRGBColorSpace;
         this.material.map = texture;
@@ -90,8 +92,8 @@ export class EarthObject {
         this.material.needsUpdate = true;
       },
       undefined,
-      () => {
-        // Texture load failed -- keep fallback colour, no crash.
+      (err) => {
+        console.warn("Earth texture failed to load:", url, err);
       },
     );
   }

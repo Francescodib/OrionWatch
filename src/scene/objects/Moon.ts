@@ -61,6 +61,7 @@ export class MoonObject {
    */
   loadTexture(): void {
     const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("anonymous");
     loader.load(
       `${import.meta.env.BASE_URL || "/"}textures/moon_2k.jpg`,
       (texture) => {
