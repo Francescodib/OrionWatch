@@ -24,6 +24,6 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     setTimeout(() => set({ toastMessage: null }), 5000);
   },
   clearToast: () => set({ toastMessage: null }),
-  activeMainTab: "weather",
+  activeMainTab: "profile",
   setActiveMainTab: (activeMainTab) => set({ activeMainTab }),
 }));

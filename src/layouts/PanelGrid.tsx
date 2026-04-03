@@ -10,10 +10,9 @@ import { DsnPanel } from "@/components/dsn/DsnPanel";
 import { ImageFeed } from "@/components/media/ImageFeed";
 import { BlogFeed } from "@/components/media/BlogFeed";
 import { EpicEarth } from "@/components/media/EpicEarth";
-import { NeoPanel } from "@/components/media/NeoPanel";
 import { ApodPanel } from "@/components/media/ApodPanel";
 import { TabBar, type Tab } from "@/components/ui/TabBar";
-import { Sun, Radio, LineChart, Newspaper, CircleDot, Flag } from "lucide-react";
+import { Sun, Radio, LineChart, Newspaper, Flag } from "lucide-react";
 
 export function PanelGrid() {
   const { activeTarget } = useTargetStore();
@@ -27,15 +26,14 @@ export function PanelGrid() {
 
   // Reset tab on target switch
   useEffect(() => {
-    setActiveMainTab("weather");
+    setActiveMainTab("profile");
   }, [activeTarget.id, setActiveMainTab]);
 
   const tabs: Tab[] = [
-    { id: "weather", label: "Weather", icon: <Sun size={11} /> },
+    { id: "profile", label: "Mission Profile", icon: <LineChart size={11} /> },
+    { id: "weather", label: "Space Weather", icon: <Sun size={11} /> },
     { id: "dsn", label: "DSN", icon: <Radio size={11} /> },
-    { id: "profile", label: "Profile", icon: <LineChart size={11} /> },
     ...(hasMedia ? [{ id: "media", label: "Media", icon: <Newspaper size={11} /> }] : []),
-    { id: "objects", label: "NEO", icon: <CircleDot size={11} /> },
   ];
 
   return (
@@ -65,11 +63,11 @@ export function PanelGrid() {
       <div className="shrink-0 border-t border-space-border/30">
         <TabBar tabs={tabs} activeTab={activeMainTab} onTabChange={setActiveMainTab} />
         <div className="h-[240px] lg:h-[300px] overflow-y-auto p-3">
+          {activeMainTab === "profile" && <DistanceContainer />}
           {activeMainTab === "weather" && (
             <SpaceWeatherPanel enabled={weatherEnabled} />
           )}
           {activeMainTab === "dsn" && <DsnPanel />}
-          {activeMainTab === "profile" && <DistanceContainer />}
           {activeMainTab === "media" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {blogRssUrl && <BlogFeed rssUrl={blogRssUrl} />}
@@ -78,7 +76,6 @@ export function PanelGrid() {
               <ApodPanel />
             </div>
           )}
-          {activeMainTab === "objects" && <NeoPanel />}
         </div>
       </div>
     </div>

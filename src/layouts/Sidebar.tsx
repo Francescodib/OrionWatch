@@ -2,7 +2,7 @@ import { useTargetStore } from "@/store/useTargetStore";
 import { useTelemetryStore } from "@/store/useTelemetryStore";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { useSpaceWeather } from "@/data/hooks/useSpaceWeather";
-import { TargetSwitcher } from "@/components/mission/TargetSwitcher";
+// import { TargetSwitcher } from "@/components/mission/TargetSwitcher";
 import { CrewCard } from "@/components/mission/CrewCard";
 import { SidebarTelemetry } from "@/components/telemetry/SidebarTelemetry";
 import { OrbitalElements } from "@/components/telemetry/OrbitalElements";
@@ -56,7 +56,9 @@ export function Sidebar() {
 
       {sidebarOpen && (
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          <TargetSwitcher />
+          {/* TargetSwitcher hidden — locked to Artemis II for mission focus.
+              Uncomment to re-enable multi-target support post-mission. */}
+          {/* <TargetSwitcher /> */}
 
           {hasCrew && (
             <CrewCard
