@@ -40,7 +40,8 @@ function recordsToStates(records: CompactRecord[]): SpacecraftState[] {
 export async function fetchFullTrajectory(
   signal?: AbortSignal,
 ): Promise<SpacecraftState[]> {
-  const url = `/data/trajectory-full.json?_=${Math.floor(Date.now() / 3600000)}`; // cache per hour
+  const base = import.meta.env.BASE_URL || "/";
+  const url = `${base}data/trajectory-full.json?_=${Math.floor(Date.now() / 3600000)}`;
   const resp = await fetch(url, { signal });
   if (!resp.ok) return [];
   const records = (await resp.json()) as CompactRecord[];
@@ -54,7 +55,8 @@ export async function fetchFullTrajectory(
 export async function fetchTelemetryHistory(
   signal?: AbortSignal,
 ): Promise<SpacecraftState[]> {
-  const url = `/data/telemetry-history.json?_=${Date.now()}`;
+  const base = import.meta.env.BASE_URL || "/";
+  const url = `${base}data/telemetry-history.json?_=${Date.now()}`;
   const resp = await fetch(url, { signal });
   if (!resp.ok) return [];
   const records = (await resp.json()) as CompactRecord[];

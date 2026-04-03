@@ -62,7 +62,7 @@ export class MoonObject {
   loadTexture(): void {
     const loader = new THREE.TextureLoader();
     loader.load(
-      '/textures/moon_2k.jpg',
+      `${import.meta.env.BASE_URL || "/"}textures/moon_2k.jpg`,
       (texture) => {
         texture.colorSpace = THREE.SRGBColorSpace;
         this.material.map = texture;

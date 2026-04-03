@@ -82,7 +82,7 @@ export class EarthObject {
   loadTexture(): void {
     const loader = new THREE.TextureLoader();
     loader.load(
-      '/textures/earth_2k.jpg',
+      `${import.meta.env.BASE_URL || "/"}textures/earth_2k.jpg`,
       (texture) => {
         texture.colorSpace = THREE.SRGBColorSpace;
         this.material.map = texture;
