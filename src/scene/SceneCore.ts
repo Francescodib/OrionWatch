@@ -51,6 +51,9 @@ export class SceneCore {
   private directionalLight: THREE.DirectionalLight;
   private ambientLight: THREE.AmbientLight;
 
+  // ---- Tracking ----
+  private tracking = false;
+
   // ---- Starfield ----
   private starfield: THREE.Points;
   private starfieldGeometry: THREE.BufferGeometry;
@@ -299,6 +302,21 @@ export class SceneCore {
   /**
    * Point camera at the spacecraft and trigger a highlight pulse.
    */
+  /** Toggle tracking mode: camera follows the spacecraft. */
+  setTracking(on: boolean): void {
+    this.tracking = on;
+    if (on) {
+      // Immediately snap target to craft
+      const craftPos = this.spacecraft.group.position;
+      this.controls.target.copy(craftPos);
+      this.controls.update();
+    }
+  }
+
+  isTracking(): boolean {
+    return this.tracking;
+  }
+
   locateCraft(): void {
     const craftPos = this.spacecraft.group.position;
     // Set orbit target to craft position
@@ -412,6 +430,14 @@ export class SceneCore {
   private animate = (): void => {
     if (this.disposed) return;
     this.animationFrameId = requestAnimationFrame(this.animate);
+
+    // Tracking: keep orbit center on spacecraft
+    if (this.tracking) {
+      const craftPos = this.spacecraft.group.position;
+      const offset = new THREE.Vector3().subVectors(this.camera.position, this.controls.target);
+      this.controls.target.copy(craftPos);
+      this.camera.position.copy(craftPos).add(offset);
+    }
 
     this.controls.update();
     this.frameCount++;

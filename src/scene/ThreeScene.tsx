@@ -4,7 +4,7 @@ import type { TrajectoryData } from '@/data/adapters/horizons';
 import { SceneCore } from './SceneCore';
 import { usePlaybackStore } from '@/store/usePlaybackStore';
 import { useTelemetryStore } from '@/store/useTelemetryStore';
-import { ZoomIn, ZoomOut, RotateCcw, Locate } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Locate, Crosshair } from 'lucide-react';
 
 interface SceneLabel {
   x: number;
@@ -243,6 +243,17 @@ function ThreeScene({
     };
   }, [trajectory, history]);
 
+  // ---- Tracking state ----
+  const [isTracking, setIsTracking] = useState(false);
+
+  const handleToggleTracking = useCallback(() => {
+    const core = sceneCoreRef.current;
+    if (!core) return;
+    const next = !core.isTracking();
+    core.setTracking(next);
+    setIsTracking(next);
+  }, []);
+
   // ---- Zoom controls ----
   const handleZoomIn = useCallback(() => sceneCoreRef.current?.zoomIn(), []);
   const handleZoomOut = useCallback(() => sceneCoreRef.current?.zoomOut(), []);
@@ -287,14 +298,27 @@ function ThreeScene({
         <SceneButton onClick={handleReset} label="Reset view"><RotateCcw size={14} /></SceneButton>
       </div>
 
-      {/* Locate craft button */}
-      <button
-        onClick={handleLocateCraft}
-        className="absolute bottom-10 right-3 z-10 px-3 py-1.5 bg-space-bg/90 backdrop-blur-sm border border-cyan/40 hover:border-cyan/70 text-[10px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded cursor-pointer flex items-center gap-1.5 shadow-[0_0_8px_rgba(0,212,255,0.15)]"
-      >
-        <Locate size={12} />
-        Locate Craft
-      </button>
+      {/* Craft controls */}
+      <div className="absolute bottom-10 right-3 z-10 flex gap-1.5">
+        <button
+          onClick={handleToggleTracking}
+          className={`px-3 py-1.5 backdrop-blur-sm border text-[10px] font-mono uppercase tracking-wider transition-colors rounded cursor-pointer flex items-center gap-1.5 ${
+            isTracking
+              ? "bg-amber/15 border-amber/50 text-amber shadow-[0_0_8px_rgba(255,107,53,0.2)]"
+              : "bg-space-bg/90 border-space-border hover:border-amber/40 text-text-muted hover:text-amber"
+          }`}
+        >
+          <Crosshair size={12} />
+          {isTracking ? "Tracking" : "Track"}
+        </button>
+        <button
+          onClick={handleLocateCraft}
+          className="px-3 py-1.5 bg-space-bg/90 backdrop-blur-sm border border-cyan/40 hover:border-cyan/70 text-[10px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded cursor-pointer flex items-center gap-1.5 shadow-[0_0_8px_rgba(0,212,255,0.15)]"
+        >
+          <Locate size={12} />
+          Locate
+        </button>
+      </div>
 
       {/* Orbit hint */}
       <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
