@@ -8,6 +8,30 @@ import { TrajectoryLine } from './objects/Trajectory';
 import { PredictedTrajectoryLine } from './objects/PredictedTrajectory';
 import { DistanceRings } from './objects/DistanceRings';
 
+/**
+ * Compute the approximate Sun direction in ECI coordinates for a given date.
+ * Uses a simplified solar position model based on ecliptic longitude from J2000.
+ */
+function getSunDirectionECI(date: Date): THREE.Vector3 {
+  const J2000 = new Date("2000-01-01T12:00:00Z").getTime();
+  const daysSinceJ2000 = (date.getTime() - J2000) / 86400000;
+  // Mean longitude of the Sun (degrees)
+  const L = (280.460 + 0.9856474 * daysSinceJ2000) % 360;
+  // Mean anomaly (degrees)
+  const g = ((357.528 + 0.9856003 * daysSinceJ2000) % 360) * Math.PI / 180;
+  // Ecliptic longitude (degrees)
+  const lambda = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * Math.PI / 180;
+  // Obliquity of ecliptic
+  const epsilon = 23.439 * Math.PI / 180;
+
+  // Convert to ECI direction (unit vector, distance doesn't matter for lighting)
+  return new THREE.Vector3(
+    Math.cos(lambda),
+    Math.sin(lambda) * Math.cos(epsilon),
+    Math.sin(lambda) * Math.sin(epsilon),
+  );
+}
+
 export class SceneCore {
   // ---- Three.js fundamentals ----
   private scene: THREE.Scene;
@@ -50,6 +74,7 @@ export class SceneCore {
   private compressed = true;
   private disposed = false;
   private frameCallbacks: (() => void)[] = [];
+  private frameCount = 0;
 
   constructor(container: HTMLDivElement) {
     this.container = container;
@@ -81,9 +106,10 @@ export class SceneCore {
     this.controls.maxDistance = 800;
     this.controls.target.set(0, 0, 0);
 
-    // ---- Lights ----
+    // ---- Lights (positioned from real sun direction) ----
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    this.directionalLight.position.set(50, 30, 50);
+    const initialSunDir = getSunDirectionECI(new Date());
+    this.directionalLight.position.copy(initialSunDir.clone().multiplyScalar(200));
     this.scene.add(this.directionalLight);
 
     this.ambientLight = new THREE.AmbientLight(0x222244, 0.5);
@@ -150,13 +176,13 @@ export class SceneCore {
     });
     this.sunSprite = new THREE.Sprite(this.sunSpriteMaterial);
     this.sunSprite.scale.set(8, 8, 1);
-    this.sunSprite.position.set(300, 50, 300);
+    this.sunSprite.position.copy(initialSunDir.clone().multiplyScalar(300));
     this.scene.add(this.sunSprite);
 
     // Thin line from origin toward sun
     const sunLineGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(300, 50, 300),
+      initialSunDir.clone().multiplyScalar(300),
     ]);
     this.sunLineMaterial = new THREE.LineBasicMaterial({
       color: 0xffdd44,
@@ -270,6 +296,45 @@ export class SceneCore {
     this.controls.update();
   }
 
+  /**
+   * Point camera at the spacecraft and trigger a highlight pulse.
+   */
+  locateCraft(): void {
+    const craftPos = this.spacecraft.group.position;
+    // Set orbit target to craft position
+    this.controls.target.copy(craftPos);
+    // Position camera offset from craft
+    const offset = new THREE.Vector3(5, 4, 5);
+    this.camera.position.copy(craftPos).add(offset);
+    this.controls.update();
+    // Trigger highlight animation
+    this.spacecraft.highlight();
+  }
+
+  /**
+   * Update the Moon's position for an arbitrary date (used by playback).
+   */
+  updateMoonTime(date: Date): void {
+    if (this.moon) {
+      this.moon.updatePosition(date, this.compressed);
+    }
+  }
+
+  /**
+   * Update the directional light and sun indicators for an arbitrary date.
+   */
+  updateSunTime(date: Date): void {
+    const sunDir = getSunDirectionECI(date);
+    this.directionalLight.position.copy(sunDir.clone().multiplyScalar(200));
+    this.sunSprite.position.copy(sunDir.clone().multiplyScalar(300));
+
+    // Update sun line endpoint
+    const positions = this.sunLine.geometry.attributes.position as THREE.BufferAttribute;
+    const endpoint = sunDir.clone().multiplyScalar(300);
+    positions.setXYZ(1, endpoint.x, endpoint.y, endpoint.z);
+    positions.needsUpdate = true;
+  }
+
   /** Project a world position to screen coordinates (px from top-left). */
   projectToScreen(worldX: number, worldY: number, worldZ: number): { x: number; y: number; visible: boolean } {
     const vec = new THREE.Vector3(worldX, worldY, worldZ);
@@ -349,13 +414,19 @@ export class SceneCore {
     this.animationFrameId = requestAnimationFrame(this.animate);
 
     this.controls.update();
+    this.frameCount++;
 
     // Scene objects
     this.earth.update(this.camera);
-    this.spacecraft.update();
+    this.spacecraft.update(this.camera);
 
     if (this.moon) {
       this.moon.updatePosition(new Date(), this.compressed);
+    }
+
+    // Update sun direction every 600 frames (barely changes)
+    if (this.frameCount % 600 === 0) {
+      this.updateSunTime(new Date());
     }
 
     // Starfield twinkle

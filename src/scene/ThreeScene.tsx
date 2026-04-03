@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import type { SpacecraftState } from '@/data/targets/types';
 import type { TrajectoryData } from '@/data/adapters/horizons';
 import { SceneCore } from './SceneCore';
+import { usePlaybackStore } from '@/store/usePlaybackStore';
 import { ZoomIn, ZoomOut, RotateCcw, Locate } from 'lucide-react';
 
 interface SceneLabel {
@@ -19,6 +20,60 @@ export interface ThreeSceneProps {
   showMoon: boolean;
   compressed: boolean;
   cameraPosition?: [number, number, number];
+}
+
+/**
+ * Linearly interpolate a SpacecraftState at a given epoch from a sorted list of states.
+ */
+function interpolateState(
+  states: SpacecraftState[],
+  epochMs: number,
+): SpacecraftState | null {
+  if (states.length === 0) return null;
+  if (states.length === 1) return states[0]!;
+
+  // Clamp to range
+  const first = states[0]!;
+  const last = states[states.length - 1]!;
+  if (epochMs <= first.timestamp.getTime()) return first;
+  if (epochMs >= last.timestamp.getTime()) return last;
+
+  // Binary search for the bracketing interval
+  let lo = 0;
+  let hi = states.length - 1;
+  while (lo < hi - 1) {
+    const mid = (lo + hi) >>> 1;
+    if (states[mid]!.timestamp.getTime() <= epochMs) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+
+  const a = states[lo]!;
+  const b = states[hi]!;
+  const tA = a.timestamp.getTime();
+  const tB = b.timestamp.getTime();
+  const frac = tB !== tA ? (epochMs - tA) / (tB - tA) : 0;
+
+  const lerp = (x: number, y: number) => x + (y - x) * frac;
+
+  return {
+    timestamp: new Date(epochMs),
+    positionKm: [
+      lerp(a.positionKm[0], b.positionKm[0]),
+      lerp(a.positionKm[1], b.positionKm[1]),
+      lerp(a.positionKm[2], b.positionKm[2]),
+    ],
+    velocityKmS: [
+      lerp(a.velocityKmS[0], b.velocityKmS[0]),
+      lerp(a.velocityKmS[1], b.velocityKmS[1]),
+      lerp(a.velocityKmS[2], b.velocityKmS[2]),
+    ],
+    distanceFromEarthKm: lerp(a.distanceFromEarthKm, b.distanceFromEarthKm),
+    distanceFromMoonKm: lerp(a.distanceFromMoonKm, b.distanceFromMoonKm),
+    speedKmS: lerp(a.speedKmS, b.speedKmS),
+  };
 }
 
 function ThreeScene({
@@ -111,12 +166,66 @@ function ThreeScene({
     }
   }, [trajectory, history]);
 
+  // ---- Playback RAF loop ----
+  const playbackRafRef = useRef<number | null>(null);
+  const lastPlaybackFrameRef = useRef<number>(0);
+
+  useEffect(() => {
+    function playbackLoop(now: number) {
+      const delta = lastPlaybackFrameRef.current ? now - lastPlaybackFrameRef.current : 16;
+      lastPlaybackFrameRef.current = now;
+
+      const store = usePlaybackStore.getState();
+      if (store.isPlaying) {
+        store.tick(delta);
+      }
+
+      const { playbackTime } = usePlaybackStore.getState();
+      const core = sceneCoreRef.current;
+
+      if (core && playbackTime !== null) {
+        // Interpolate spacecraft position from trajectory
+        const allPoints = trajectory
+          ? [...trajectory.past, ...trajectory.future]
+          : history;
+
+        if (allPoints.length >= 2) {
+          const interpolated = interpolateState(allPoints, playbackTime);
+          if (interpolated) {
+            core.updateSpacecraft(interpolated);
+          }
+        }
+
+        // Update moon and sun for playback time
+        const playbackDate = new Date(playbackTime);
+        core.updateMoonTime(playbackDate);
+        core.updateSunTime(playbackDate);
+      }
+
+      playbackRafRef.current = requestAnimationFrame(playbackLoop);
+    }
+
+    // Only start the loop — it checks isPlaying and playbackTime internally
+    lastPlaybackFrameRef.current = 0;
+    playbackRafRef.current = requestAnimationFrame(playbackLoop);
+
+    return () => {
+      if (playbackRafRef.current !== null) {
+        cancelAnimationFrame(playbackRafRef.current);
+        playbackRafRef.current = null;
+      }
+    };
+  }, [trajectory, history]);
+
   // ---- Zoom controls ----
   const handleZoomIn = useCallback(() => sceneCoreRef.current?.zoomIn(), []);
   const handleZoomOut = useCallback(() => sceneCoreRef.current?.zoomOut(), []);
   const handleReset = useCallback(() => {
     sceneCoreRef.current?.resetView(cameraPosition);
   }, [cameraPosition]);
+  const handleLocateCraft = useCallback(() => {
+    sceneCoreRef.current?.locateCraft();
+  }, []);
 
   return (
     <div className="relative w-full h-full min-h-[300px]">
@@ -154,7 +263,7 @@ function ThreeScene({
 
       {/* Locate craft button */}
       <button
-        onClick={handleReset}
+        onClick={handleLocateCraft}
         className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-space-bg/80 backdrop-blur-sm border border-cyan/30 hover:border-cyan/60 text-[9px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded-sm cursor-pointer flex items-center gap-1"
       >
         <Locate size={10} />

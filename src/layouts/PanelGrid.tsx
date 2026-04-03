@@ -11,6 +11,7 @@ import { ImageFeed } from "@/components/media/ImageFeed";
 import { BlogFeed } from "@/components/media/BlogFeed";
 import { EpicEarth } from "@/components/media/EpicEarth";
 import { ApodPanel } from "@/components/media/ApodPanel";
+import { PlaybackTimeline } from "@/components/ui/PlaybackTimeline";
 import { TabBar, type Tab } from "@/components/ui/TabBar";
 import { Sun, Radio, LineChart, Newspaper, Flag } from "lucide-react";
 
@@ -46,6 +47,11 @@ export function PanelGrid() {
       {/* 3D Scene — fills available vertical space */}
       <div className="flex-1 min-h-[250px] lg:min-h-0">
         <SceneContainer />
+      </div>
+
+      {/* Playback Timeline — scrubber for mission replay */}
+      <div className="shrink-0">
+        <PlaybackTimeline />
       </div>
 
       {/* Mission Timeline — compact strip */}
