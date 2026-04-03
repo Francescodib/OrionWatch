@@ -211,6 +211,7 @@ export class SceneCore {
     // ---- Spacecraft ----
     this.spacecraft = new SpacecraftObject();
     this.scene.add(this.spacecraft.group);
+    this.scene.add(this.spacecraft.trail);
 
     // ---- Trajectory ----
     this.trajectory = new TrajectoryLine();
@@ -395,6 +396,7 @@ export class SceneCore {
       this.scene.remove(this.moon.orbitRing);
       this.moon.dispose();
     }
+    this.scene.remove(this.spacecraft.trail);
     this.spacecraft.dispose();
     this.trajectory.dispose();
     this.predictedTrajectory.dispose();

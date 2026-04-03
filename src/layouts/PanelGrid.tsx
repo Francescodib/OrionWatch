@@ -44,8 +44,8 @@ export function PanelGrid() {
         <TelemetryContainer />
       </div>
 
-      {/* 3D Scene — fills available vertical space */}
-      <div className="flex-1 min-h-[250px] lg:min-h-0">
+      {/* 3D Scene — fills available vertical space, generous min height */}
+      <div className="flex-1 min-h-[350px]">
         <SceneContainer />
       </div>
 
@@ -68,7 +68,7 @@ export function PanelGrid() {
       {/* Tabbed secondary content */}
       <div className="shrink-0 border-t border-space-border/30">
         <TabBar tabs={tabs} activeTab={activeMainTab} onTabChange={setActiveMainTab} />
-        <div className="h-[240px] lg:h-[300px] overflow-y-auto p-3">
+        <div className="h-[200px] lg:h-[250px] overflow-y-auto p-3">
           {activeMainTab === "profile" && <DistanceContainer />}
           {activeMainTab === "weather" && (
             <SpaceWeatherPanel enabled={weatherEnabled} />
