@@ -10,7 +10,7 @@
  * Usage: php cron/backfill-trajectory.php
  */
 
-$OUTPUT_FILE = __DIR__ . '/../public/data/telemetry-history.json';
+$OUTPUT_FILE = __DIR__ . '/../data/telemetry-history.json';
 $FT_TO_KM   = 0.0003048;
 
 $SPKID  = '-1024';
@@ -21,7 +21,8 @@ $START  = '2026-04-02 02:00:00';
 $END    = date('Y-m-d H:i:s'); // now
 $STEP   = '10 min'; // 10 minute steps = ~6 points/hour = ~144/day
 
-function buildHorizonsUrl(string $spkid, string $center, string $start, string $end, string $step): string {
+function buildHorizonsUrl(string $spkid, string $center, string $start, string $end, string $step): string
+{
     $params = http_build_query([
         'format'     => 'json',
         'COMMAND'    => "'$spkid'",
@@ -38,7 +39,8 @@ function buildHorizonsUrl(string $spkid, string $center, string $start, string $
     return "https://ssd.jpl.nasa.gov/api/horizons.api?$params";
 }
 
-function approxMoonKm(float $epochSec): array {
+function approxMoonKm(float $epochSec): array
+{
     $moonEpoch = strtotime('2000-01-06T00:00:00Z');
     $elapsed = $epochSec - $moonEpoch;
     $period = 27.321661 * 86400;
@@ -60,8 +62,20 @@ $result = $data['result'];
 
 // Check for boundary errors and retry
 if (preg_match('/No ephemeris.*prior to.*?(\d{4})-([A-Z]{3})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/i', $result, $m)) {
-    $months = ['JAN'=>'01','FEB'=>'02','MAR'=>'03','APR'=>'04','MAY'=>'05','JUN'=>'06',
-               'JUL'=>'07','AUG'=>'08','SEP'=>'09','OCT'=>'10','NOV'=>'11','DEC'=>'12'];
+    $months = [
+        'JAN' => '01',
+        'FEB' => '02',
+        'MAR' => '03',
+        'APR' => '04',
+        'MAY' => '05',
+        'JUN' => '06',
+        'JUL' => '07',
+        'AUG' => '08',
+        'SEP' => '09',
+        'OCT' => '10',
+        'NOV' => '11',
+        'DEC' => '12'
+    ];
     $mo = $months[strtoupper($m[2])] ?? '01';
     $newStart = "{$m[1]}-{$mo}-{$m[3]} {$m[4]}:{$m[5]}:{$m[6]}";
     $newStartDt = new DateTime($newStart, new DateTimeZone('UTC'));
@@ -89,8 +103,20 @@ $currentTimestamp = null;
 foreach ($lines as $line) {
     // Timestamp: "2461133.000000000 = A.D. 2026-Apr-02 12:00:00.0000 TDB"
     if (preg_match('/A\.D\.\s+(\d{4})-([A-Za-z]+)-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/', $line, $tsMatch)) {
-        $months = ['Jan'=>'01','Feb'=>'02','Mar'=>'03','Apr'=>'04','May'=>'05','Jun'=>'06',
-                   'Jul'=>'07','Aug'=>'08','Sep'=>'09','Oct'=>'10','Nov'=>'11','Dec'=>'12'];
+        $months = [
+            'Jan' => '01',
+            'Feb' => '02',
+            'Mar' => '03',
+            'Apr' => '04',
+            'May' => '05',
+            'Jun' => '06',
+            'Jul' => '07',
+            'Aug' => '08',
+            'Sep' => '09',
+            'Oct' => '10',
+            'Nov' => '11',
+            'Dec' => '12'
+        ];
         $mo = $months[$tsMatch[2]] ?? '01';
         $dtStr = "{$tsMatch[1]}-{$mo}-{$tsMatch[3]}T{$tsMatch[4]}:{$tsMatch[5]}:{$tsMatch[6]}Z";
         $currentTimestamp = strtotime($dtStr);
@@ -111,11 +137,11 @@ foreach ($lines as $line) {
         $vy = (float)$velMatch[2];
         $vz = (float)$velMatch[3];
 
-        $distEarth = sqrt($x*$x + $y*$y + $z*$z);
-        $speed = sqrt($vx*$vx + $vy*$vy + $vz*$vz);
+        $distEarth = sqrt($x * $x + $y * $y + $z * $z);
+        $speed = sqrt($vx * $vx + $vy * $vy + $vz * $vz);
 
         $moon = approxMoonKm($currentTimestamp);
-        $distMoon = sqrt(($x-$moon[0])**2 + ($y-$moon[1])**2 + ($z-$moon[2])**2);
+        $distMoon = sqrt(($x - $moon[0]) ** 2 + ($y - $moon[1]) ** 2 + ($z - $moon[2]) ** 2);
 
         $records[] = [
             't'  => $currentTimestamp * 1000,
@@ -162,4 +188,4 @@ $tmpFile = $OUTPUT_FILE . '.tmp';
 file_put_contents($tmpFile, json_encode($deduped, JSON_UNESCAPED_SLASHES));
 rename($tmpFile, $OUTPUT_FILE);
 
-echo "Done: " . count($deduped) . " records from " . date('Y-m-d H:i', $deduped[0]['t']/1000) . " to " . date('Y-m-d H:i', end($deduped)['t']/1000) . "\n";
+echo "Done: " . count($deduped) . " records from " . date('Y-m-d H:i', $deduped[0]['t'] / 1000) . " to " . date('Y-m-d H:i', end($deduped)['t'] / 1000) . "\n";

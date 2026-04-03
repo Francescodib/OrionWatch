@@ -7,7 +7,7 @@
  * and appends it to a JSON file for the frontend to consume.
  *
  * Run as cron job every 60 seconds:
- *   * * * * * /usr/bin/php /path/to/record-telemetry.php
+ * * * * * * /usr/bin/php /path/to/record-telemetry.php
  *
  * The output file (telemetry-history.json) should be placed in the
  * public web directory so the frontend can fetch it.
@@ -18,13 +18,14 @@
 
 // ── Configuration ──────────────────────────────────────────────
 $GCS_LIST_URL  = 'https://storage.googleapis.com/storage/v1/b/p-2-cen1/o?prefix=October%2F1%2FOctober&maxResults=1';
-$OUTPUT_FILE   = __DIR__ . '/../public/data/telemetry-history.json';
+$OUTPUT_FILE   = __DIR__ . '/../data/telemetry-history.json';
 $MAX_RECORDS   = 30000;  // ~10 days at 30s intervals
 $DEDUP_SECONDS = 20;     // skip if last record within this window
 $FT_TO_KM     = 0.0003048;
 
 // ── Fetch AROW data ────────────────────────────────────────────
-function fetchArowData(): ?array {
+function fetchArowData(): ?array
+{
     global $GCS_LIST_URL, $FT_TO_KM;
 
     // Step 1: List files to get latest
@@ -44,7 +45,7 @@ function fetchArowData(): ?array {
 
     // Step 2: Download file
     $downloadUrl = 'https://storage.googleapis.com/download/storage/v1/b/p-2-cen1/o/'
-                 . urlencode($fileName) . '?alt=media';
+        . urlencode($fileName) . '?alt=media';
 
     $dataJson = @file_get_contents($downloadUrl);
     if ($dataJson === false) {
@@ -60,7 +61,7 @@ function fetchArowData(): ?array {
 
     // Step 3: Extract parameters
     $params = [];
-    foreach (['2003','2004','2005','2009','2010','2011'] as $num) {
+    foreach (['2003', '2004', '2005', '2009', '2010', '2011'] as $num) {
         $key = "Parameter_$num";
         if (!isset($data[$key]) || $data[$key]['Status'] !== 'Good') {
             error_log("OrionWatch: Bad parameter $key");
@@ -72,8 +73,9 @@ function fetchArowData(): ?array {
     // Step 4: Parse timestamp (format: "2026:093:10:05:51.027")
     $timeStr = $data['Parameter_2003']['Time'];
     preg_match('/(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})\.?(\d*)/', $timeStr, $m);
-    $dt = DateTime::createFromFormat('Y z H i s',
-        sprintf('%s %s %s %s %s', $m[1], (int)$m[2]-1, $m[3], $m[4], $m[5]),
+    $dt = DateTime::createFromFormat(
+        'Y z H i s',
+        sprintf('%s %s %s %s %s', $m[1], (int)$m[2] - 1, $m[3], $m[4], $m[5]),
         new DateTimeZone('UTC')
     );
     // Fallback if createFromFormat fails
@@ -92,8 +94,8 @@ function fetchArowData(): ?array {
     $vy = $params['2010'] * $FT_TO_KM;
     $vz = $params['2011'] * $FT_TO_KM;
 
-    $distEarth = sqrt($x*$x + $y*$y + $z*$z);
-    $speed = sqrt($vx*$vx + $vy*$vy + $vz*$vz);
+    $distEarth = sqrt($x * $x + $y * $y + $z * $z);
+    $speed = sqrt($vx * $vx + $vy * $vy + $vz * $vz);
 
     // Approximate Moon position
     $moonEpoch = strtotime('2000-01-06T00:00:00Z');
@@ -103,7 +105,7 @@ function fetchArowData(): ?array {
     $moonR = 384400;
     $moonX = $moonR * cos($angle);
     $moonY = $moonR * sin($angle);
-    $distMoon = sqrt(($x-$moonX)**2 + ($y-$moonY)**2 + $z*$z);
+    $distMoon = sqrt(($x - $moonX) ** 2 + ($y - $moonY) ** 2 + $z * $z);
 
     return [
         't'  => $dt->getTimestamp() * 1000, // epoch ms (JS-compatible)
