@@ -104,6 +104,8 @@ function ThreeScene({
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneCoreRef = useRef<SceneCore | null>(null);
   const [labels, setLabels] = useState<SceneLabel[]>([]);
+  const playbackFrameCount = useRef(0);
+  const allPointsCacheRef = useRef<SpacecraftState[]>([]);
 
   // ---- Mount / unmount ----
   useEffect(() => {
@@ -203,6 +205,13 @@ function ThreeScene({
     }
   }, [trajectory, history]);
 
+  // ---- Cache allPoints for playback loop (avoid re-spreading every frame) ----
+  useEffect(() => {
+    allPointsCacheRef.current = trajectory
+      ? [...trajectory.past, ...trajectory.future]
+      : history;
+  }, [trajectory, history]);
+
   // ---- Playback RAF loop ----
   const playbackRafRef = useRef<number | null>(null);
   const lastPlaybackFrameRef = useRef<number>(0);
@@ -223,25 +232,27 @@ function ThreeScene({
       if (core) {
         // Use playback time or current time for interpolation
         const t = playbackTime ?? Date.now();
-        const allPoints = trajectory
-          ? [...trajectory.past, ...trajectory.future]
-          : history;
+        const allPoints = allPointsCacheRef.current;
+
+        playbackFrameCount.current++;
 
         if (allPoints.length >= 2) {
           const interpolated = interpolateState(allPoints, t);
           if (interpolated) {
             core.updateSpacecraft(interpolated);
-            // During playback, feed interpolated state to sidebar telemetry
-            if (playbackTime !== null) {
+            // During playback, feed interpolated state to sidebar telemetry (throttled to ~4Hz)
+            if (playbackTime !== null && playbackFrameCount.current % 15 === 0) {
               useTelemetryStore.getState().setState(interpolated);
             }
           }
         }
 
-        // Update moon and sun
-        const date = new Date(t);
-        core.updateMoonTime(date);
-        core.updateSunTime(date);
+        // Update moon and sun only during playback, throttled to every 60 frames
+        if (playbackTime !== null && playbackFrameCount.current % 60 === 0) {
+          const date = new Date(t);
+          core.updateMoonTime(date);
+          core.updateSunTime(date);
+        }
       }
 
       playbackRafRef.current = requestAnimationFrame(playbackLoop);
@@ -308,17 +319,17 @@ function ThreeScene({
       </div>
 
       {/* Zoom controls overlay */}
-      <div className="absolute top-3 right-3 flex flex-col gap-1 z-10">
+      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5 sm:gap-1 z-10">
         <SceneButton onClick={handleZoomIn} label="Zoom in"><ZoomIn size={14} /></SceneButton>
         <SceneButton onClick={handleZoomOut} label="Zoom out"><ZoomOut size={14} /></SceneButton>
         <SceneButton onClick={handleReset} label="Reset view"><RotateCcw size={14} /></SceneButton>
       </div>
 
       {/* Craft controls */}
-      <div className="absolute bottom-10 right-3 z-10 flex gap-1.5">
+      <div className="absolute bottom-14 sm:bottom-10 right-2 sm:right-3 z-10 flex gap-2 sm:gap-1.5">
         <button
           onClick={handleToggleTracking}
-          className={`px-3 py-1.5 backdrop-blur-sm border text-[10px] font-mono uppercase tracking-wider transition-colors rounded cursor-pointer flex items-center gap-1.5 ${
+          className={`px-4 sm:px-3 py-2.5 sm:py-1.5 backdrop-blur-sm border text-[11px] sm:text-[10px] font-mono uppercase tracking-wider transition-colors rounded cursor-pointer flex items-center gap-1.5 min-h-[44px] sm:min-h-0 ${
             isTracking
               ? "bg-amber/15 border-amber/50 text-amber shadow-[0_0_8px_rgba(255,107,53,0.2)]"
               : "bg-space-bg/90 border-space-border hover:border-amber/40 text-text-muted hover:text-amber"
@@ -329,7 +340,7 @@ function ThreeScene({
         </button>
         <button
           onClick={handleLocateCraft}
-          className="px-3 py-1.5 bg-space-bg/90 backdrop-blur-sm border border-cyan/40 hover:border-cyan/70 text-[10px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded cursor-pointer flex items-center gap-1.5 shadow-[0_0_8px_rgba(0,212,255,0.15)]"
+          className="px-4 sm:px-3 py-2.5 sm:py-1.5 bg-space-bg/90 backdrop-blur-sm border border-cyan/40 hover:border-cyan/70 text-[11px] sm:text-[10px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded cursor-pointer flex items-center gap-1.5 shadow-[0_0_8px_rgba(0,212,255,0.15)] min-h-[44px] sm:min-h-0"
         >
           <Locate size={12} />
           Locate
@@ -351,7 +362,7 @@ function SceneButton({ onClick, label, children }: { onClick: () => void; label:
     <button
       onClick={onClick}
       aria-label={label}
-      className="w-7 h-7 flex items-center justify-center bg-space-bg/70 backdrop-blur-sm border border-space-border hover:border-cyan/40 text-text-muted hover:text-cyan transition-colors rounded-sm cursor-pointer"
+      className="w-11 h-11 sm:w-7 sm:h-7 flex items-center justify-center bg-space-bg/70 backdrop-blur-sm border border-space-border hover:border-cyan/40 text-text-muted hover:text-cyan transition-colors rounded-sm cursor-pointer"
     >
       {children}
     </button>

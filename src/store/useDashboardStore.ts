@@ -4,6 +4,7 @@ import type { CorsStrategy } from "@/data/utils/cors";
 interface DashboardStore {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
+  setSidebarOpen: (open: boolean) => void;
   corsStrategy: CorsStrategy | null;
   setCorsStrategy: (s: CorsStrategy) => void;
   toastMessage: string | null;
@@ -16,6 +17,7 @@ interface DashboardStore {
 export const useDashboardStore = create<DashboardStore>((set) => ({
   sidebarOpen: true,
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+  setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   corsStrategy: null,
   setCorsStrategy: (corsStrategy) => set({ corsStrategy }),
   toastMessage: null,

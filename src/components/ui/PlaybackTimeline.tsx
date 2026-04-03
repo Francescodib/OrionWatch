@@ -69,11 +69,11 @@ export function PlaybackTimeline() {
   );
 
   return (
-    <div className="flex items-center gap-2 px-4 py-1.5 bg-space-surface/50 border-t border-space-border/30">
+    <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 sm:py-1.5 bg-space-surface/50 border-t border-space-border/30">
       {/* Play / Pause */}
       <button
         onClick={handlePlayPause}
-        className="w-6 h-6 flex items-center justify-center bg-space-bg/60 border border-space-border hover:border-cyan/40 text-text-muted hover:text-cyan transition-colors rounded-sm cursor-pointer shrink-0"
+        className="w-10 h-10 sm:w-6 sm:h-6 flex items-center justify-center bg-space-bg/60 border border-space-border hover:border-cyan/40 text-text-muted hover:text-cyan transition-colors rounded-sm cursor-pointer shrink-0"
         aria-label={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? <Pause size={10} /> : <Play size={10} />}
@@ -82,7 +82,7 @@ export function PlaybackTimeline() {
       {/* Speed selector */}
       <button
         onClick={handleSpeedCycle}
-        className="px-1.5 py-0.5 text-[8px] font-mono text-amber bg-space-bg/60 border border-space-border hover:border-amber/40 rounded-sm cursor-pointer shrink-0 min-w-[42px] text-center transition-colors"
+        className="px-2 sm:px-1.5 py-1.5 sm:py-0.5 text-[10px] sm:text-[8px] font-mono text-amber bg-space-bg/60 border border-space-border hover:border-amber/40 rounded-sm cursor-pointer shrink-0 min-w-[42px] text-center transition-colors min-h-[44px] sm:min-h-0"
         aria-label={`Playback speed: ${playbackSpeed}x`}
       >
         {playbackSpeed}x
@@ -135,7 +135,7 @@ export function PlaybackTimeline() {
       {/* LIVE button */}
       <button
         onClick={goLive}
-        className={`px-2 py-0.5 text-[8px] font-mono uppercase tracking-wider rounded-sm cursor-pointer shrink-0 flex items-center gap-1 border transition-colors ${
+        className={`px-3 sm:px-2 py-2 sm:py-0.5 text-[10px] sm:text-[8px] font-mono uppercase tracking-wider rounded-sm cursor-pointer shrink-0 flex items-center gap-1 border transition-colors min-h-[44px] sm:min-h-0 ${
           isLive
             ? "text-green bg-green/10 border-green/30"
             : "text-text-muted bg-space-bg/60 border-space-border hover:border-green/40 hover:text-green"

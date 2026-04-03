@@ -70,6 +70,10 @@ export class SceneCore {
   // ---- Ecliptic grid ----
   private grid: THREE.GridHelper;
 
+  // ---- Pre-allocated sun direction vectors ----
+  private _sunDir = new THREE.Vector3();
+  private _sunEndpoint = new THREE.Vector3();
+
   // ---- Lifecycle ----
   private animationFrameId: number | null = null;
   private resizeObserver: ResizeObserver;
@@ -344,13 +348,13 @@ export class SceneCore {
    */
   updateSunTime(date: Date): void {
     const sunDir = getSunDirectionECI(date);
-    this.directionalLight.position.copy(sunDir.clone().multiplyScalar(200));
-    this.sunSprite.position.copy(sunDir.clone().multiplyScalar(300));
+    this.directionalLight.position.copy(this._sunDir.copy(sunDir).multiplyScalar(200));
+    this._sunEndpoint.copy(sunDir).multiplyScalar(300);
+    this.sunSprite.position.copy(this._sunEndpoint);
 
     // Update sun line endpoint
     const positions = this.sunLine.geometry.attributes.position as THREE.BufferAttribute;
-    const endpoint = sunDir.clone().multiplyScalar(300);
-    positions.setXYZ(1, endpoint.x, endpoint.y, endpoint.z);
+    positions.setXYZ(1, this._sunEndpoint.x, this._sunEndpoint.y, this._sunEndpoint.z);
     positions.needsUpdate = true;
   }
 
@@ -448,7 +452,7 @@ export class SceneCore {
     this.earth.update(this.camera);
     this.spacecraft.update(this.camera);
 
-    if (this.moon) {
+    if (this.moon && this.frameCount % 60 === 0) {
       this.moon.updatePosition(new Date(), this.compressed);
     }
 

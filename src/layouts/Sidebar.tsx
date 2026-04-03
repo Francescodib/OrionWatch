@@ -9,24 +9,8 @@ import { OrbitalElements } from "@/components/telemetry/OrbitalElements";
 import { GroundTrack } from "@/components/telemetry/GroundTrack";
 import { SpeedComparison } from "@/components/telemetry/SpeedComparison";
 import { RadiationEstimate } from "@/components/telemetry/RadiationEstimate";
-import { ChevronLeft, ChevronRight, Orbit, MapPin, Gauge, ShieldAlert } from "lucide-react";
-import type { ReactNode } from "react";
-
-function SidebarSection({ title, icon, children }: { title: string; icon?: ReactNode; children: ReactNode }) {
-  return (
-    <div>
-      <div className="flex items-center gap-1.5 mb-1.5">
-        {icon && <span className="text-text-muted/50">{icon}</span>}
-        <span className="text-[8px] font-heading uppercase tracking-[0.15em] text-text-muted/60">{title}</span>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function SidebarDivider() {
-  return <div className="border-t border-space-border/30" />;
-}
+import { Panel } from "@/components/ui/Panel";
+import { ChevronLeft, ChevronRight, Orbit, MapPin, Gauge, ShieldAlert, Activity } from "lucide-react";
 
 export function Sidebar() {
   const { activeTarget } = useTargetStore();
@@ -40,26 +24,32 @@ export function Sidebar() {
   return (
     <aside
       className={`
-        bg-space-surface/60 backdrop-blur-sm border-r border-space-border
-        flex flex-col shrink-0 transition-[width] duration-200
-        ${sidebarOpen ? "w-64" : "w-10"}
+        fixed inset-x-0 bottom-0 z-40 max-h-[70vh] rounded-t-xl transition-transform duration-300
+        ${sidebarOpen ? "translate-y-0" : "translate-y-full"}
+        sm:static sm:inset-auto sm:z-auto sm:max-h-none sm:rounded-none sm:translate-y-0 sm:transition-[width] sm:duration-200
+        bg-space-surface/95 sm:bg-space-surface/60 backdrop-blur-md sm:backdrop-blur-sm
+        border-t sm:border-t-0 border-r border-space-border
+        flex flex-col shrink-0
+        ${sidebarOpen ? "sm:w-64" : "sm:w-10"}
       `}
     >
-      {/* Toggle button */}
+      {/* Mobile drag handle */}
+      <div className="sm:hidden flex justify-center py-2 shrink-0">
+        <div className="w-10 h-1 rounded-full bg-text-muted/30" />
+      </div>
+
+      {/* Toggle button (desktop only) */}
       <button
         onClick={toggleSidebar}
-        className="h-10 flex items-center justify-center text-text-muted hover:text-cyan transition-colors cursor-pointer border-b border-space-border"
+        className="hidden sm:flex h-10 items-center justify-center text-text-muted hover:text-cyan transition-colors cursor-pointer border-b border-space-border"
         aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
       >
         {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
       </button>
 
       {sidebarOpen && (
-        <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {/* TargetSwitcher hidden — locked to Artemis II for mission focus.
-              Uncomment to re-enable multi-target support post-mission. */}
-          {/* <TargetSwitcher /> */}
-
+        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+          {/* Crew */}
           {hasCrew && (
             <CrewCard
               crew={activeTarget.spacecraft.crew}
@@ -67,57 +57,53 @@ export function Sidebar() {
             />
           )}
 
-          <SidebarDivider />
+          {/* Telemetry */}
+          <Panel title="Telemetry" icon={<Activity size={12} />} status={state ? "nominal" : "idle"} compact>
+            {state ? (
+              <SidebarTelemetry
+                state={state}
+                history={history}
+                showMoonDistance={activeTarget.scene.showMoon}
+                milestones={activeTarget.milestones}
+                launchDate={activeTarget.spacecraft.launchDate}
+                splashdownDate={activeTarget.spacecraft.splashdownDate}
+              />
+            ) : (
+              <div className="space-y-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-4 bg-space-bg/60 rounded animate-pulse" />
+                ))}
+              </div>
+            )}
+          </Panel>
 
-          {/* Telemetry readouts */}
-          {state ? (
-            <SidebarTelemetry
-              state={state}
-              history={history}
-              showMoonDistance={activeTarget.scene.showMoon}
-              milestones={activeTarget.milestones}
-              launchDate={activeTarget.spacecraft.launchDate}
-              splashdownDate={activeTarget.spacecraft.splashdownDate}
-            />
-          ) : (
-            <div className="space-y-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-4 bg-space-bg/60 rounded animate-pulse" />
-              ))}
-            </div>
-          )}
-
-          <SidebarDivider />
-
-          {/* Secondary data */}
+          {/* Secondary data panels */}
           {state && (
             <>
-              <SidebarSection title="Orbital" icon={<Orbit size={10} />}>
+              <Panel title="Orbital" icon={<Orbit size={12} />} status="nominal" compact>
                 <OrbitalElements state={state} />
-              </SidebarSection>
+              </Panel>
 
-              <SidebarSection title="Position" icon={<MapPin size={10} />}>
+              <Panel title="Position" icon={<MapPin size={12} />} status="nominal" compact>
                 <GroundTrack state={state} />
-              </SidebarSection>
+              </Panel>
 
-              <SidebarSection title="Speed" icon={<Gauge size={10} />}>
+              <Panel title="Speed" icon={<Gauge size={12} />} status="nominal" compact>
                 <SpeedComparison speedKmS={state.speedKmS} />
-              </SidebarSection>
+              </Panel>
 
               {hasCrew && weatherEnabled && (
-                <SidebarSection title="Radiation" icon={<ShieldAlert size={10} />}>
+                <Panel title="Radiation" icon={<ShieldAlert size={12} />} status="nominal" compact>
                   <WeatherAwareRadiation distanceFromEarthKm={state.distanceFromEarthKm} />
-                </SidebarSection>
+                </Panel>
               )}
             </>
           )}
 
           {/* Attribution */}
-          <div className="mt-auto pt-3 border-t border-space-border/30">
-            <p className="text-[9px] text-text-muted/50 font-mono leading-relaxed uppercase tracking-wider">
-              Data: NASA/JPL, NOAA/SWPC
-              <br />
-              Textures: Solar System Scope (CC-BY 4.0)
+          <div className="pt-2">
+            <p className="text-[9px] text-text-muted/40 font-mono leading-relaxed uppercase tracking-wider text-center">
+              NASA/JPL · NOAA/SWPC
             </p>
           </div>
         </div>

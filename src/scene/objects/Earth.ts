@@ -104,7 +104,7 @@ export class EarthObject {
 
     // Keep glow facing the camera if a camera reference is provided
     if (_camera && this.glowMaterial) {
-      this.glowMaterial.uniforms['viewVector']!.value = new THREE.Vector3().subVectors(
+      (this.glowMaterial.uniforms['viewVector']!.value as THREE.Vector3).subVectors(
         _camera.position,
         this.group.position,
       );

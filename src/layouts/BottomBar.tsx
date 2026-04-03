@@ -7,10 +7,10 @@ export function BottomBar() {
   const { corsStrategy } = useDashboardStore();
 
   return (
-    <footer className="h-7 bg-space-surface border-t border-space-border flex items-center justify-between px-4 shrink-0">
+    <footer className="h-6 sm:h-7 bg-space-surface border-t border-space-border flex items-center justify-between px-2 sm:px-4 shrink-0">
       <div className="flex items-center gap-4 text-[9px] font-mono text-text-muted">
         <span>TARGET: {activeTarget.id.toUpperCase()}</span>
-        <span className="flex items-center gap-1">
+        <span className="hidden sm:flex items-center gap-1">
           <Database size={9} />
           SOURCE:{" "}
           {activeTarget.telemetry.source === "horizons"
@@ -21,7 +21,7 @@ export function BottomBar() {
         </span>
       </div>
       <div className="flex items-center gap-4 text-[9px] font-mono text-text-muted">
-        {corsStrategy && <span className="flex items-center gap-1"><Link2 size={9} />LINK: {corsStrategy.toUpperCase()}</span>}
+        {corsStrategy && <span className="hidden sm:flex items-center gap-1"><Link2 size={9} />LINK: {corsStrategy.toUpperCase()}</span>}
         <span>ORIONWATCH v1.0</span>
       </div>
     </footer>

@@ -38,50 +38,62 @@ export function PanelGrid() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Mobile-only telemetry (hidden on desktop where sidebar shows it) */}
-      <div className="lg:hidden shrink-0 p-3 border-b border-space-border/30">
-        <TelemetryContainer />
-      </div>
-
-      {/* 3D Scene — fills available vertical space, generous min height */}
-      <div className="flex-1 min-h-[350px]">
-        <SceneContainer />
-      </div>
-
-      {/* Playback Timeline — scrubber for mission replay */}
-      <div className="shrink-0">
-        <PlaybackTimeline />
-      </div>
-
-      {/* Mission Timeline — compact strip */}
-      {hasMilestones && (
-        <div className="shrink-0 px-4 py-2 border-t border-space-border/30 bg-space-surface/30">
-          <div className="flex items-center gap-2 mb-1">
-            <Flag size={10} className="text-text-muted/50" />
-            <span className="text-[8px] font-heading uppercase tracking-[0.15em] text-text-muted/60">Mission Progress</span>
-          </div>
-          <MilestoneTimeline milestones={activeTarget.milestones} />
+    <div className="flex-1 flex flex-col xl:grid xl:grid-cols-[1fr_256px] overflow-hidden">
+      {/* ── Column 1: Scene + controls ────────────────────── */}
+      <div className="flex flex-col min-h-0">
+        {/* Mobile-only telemetry */}
+        <div className="lg:hidden shrink-0 p-2 sm:p-3 border-b border-space-border/30">
+          <TelemetryContainer />
         </div>
-      )}
 
-      {/* Tabbed secondary content */}
-      <div className="shrink-0 border-t border-space-border/30">
-        <TabBar tabs={tabs} activeTab={activeMainTab} onTabChange={setActiveMainTab} />
-        <div className="h-[200px] lg:h-[250px] overflow-y-auto p-3">
-          {activeMainTab === "profile" && <DistanceContainer />}
-          {activeMainTab === "weather" && (
-            <SpaceWeatherPanel enabled={weatherEnabled} />
-          )}
-          {activeMainTab === "dsn" && <DsnPanel />}
-          {activeMainTab === "media" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              {blogRssUrl && <BlogFeed rssUrl={blogRssUrl} />}
-              {imageQuery && <ImageFeed query={imageQuery} />}
-              <EpicEarth />
-              <ApodPanel />
+        {/* 3D Scene — fills available space */}
+        <div className="flex-1 min-h-[200px] sm:min-h-[350px]">
+          <SceneContainer />
+        </div>
+
+        {/* Playback Timeline */}
+        <div className="shrink-0">
+          <PlaybackTimeline />
+        </div>
+
+        {/* Mission Timeline — compact strip */}
+        {hasMilestones && (
+          <div className="shrink-0 px-2 sm:px-4 py-1.5 sm:py-2 border-t border-space-border/30 bg-space-surface/30">
+            <div className="flex items-center gap-2 mb-1">
+              <Flag size={10} className="text-text-muted/50" />
+              <span className="text-[8px] font-heading uppercase tracking-[0.15em] text-text-muted/60">Mission Progress</span>
             </div>
-          )}
+            <MilestoneTimeline milestones={activeTarget.milestones} />
+          </div>
+        )}
+
+        {/* Tabbed content (< xl only — on xl+ the right panel shows everything) */}
+        <div className="xl:hidden shrink-0 border-t border-space-border/30">
+          <TabBar tabs={tabs} activeTab={activeMainTab} onTabChange={setActiveMainTab} />
+          <div className="h-[180px] sm:h-[200px] lg:h-[300px] overflow-y-auto p-2 sm:p-3">
+            {activeMainTab === "profile" && <DistanceContainer />}
+            {activeMainTab === "weather" && (
+              <SpaceWeatherPanel enabled={weatherEnabled} />
+            )}
+            {activeMainTab === "dsn" && <DsnPanel />}
+            {activeMainTab === "media" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {blogRssUrl && <BlogFeed rssUrl={blogRssUrl} />}
+                {imageQuery && <ImageFeed query={imageQuery} />}
+                <EpicEarth />
+                <ApodPanel />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Column 2: Right panel (xl+ only) — operational data ── */}
+      <div className="hidden xl:block border-l border-space-border/30 overflow-y-auto p-2 bg-space-surface/20">
+        <div className="space-y-2">
+          <DistanceContainer />
+          <SpaceWeatherPanel enabled={weatherEnabled} />
+          <DsnPanel />
         </div>
       </div>
     </div>
