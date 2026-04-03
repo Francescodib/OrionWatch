@@ -150,12 +150,32 @@ function ThreeScene({
     sceneCoreRef.current?.setShowMoon(showMoon);
   }, [showMoon]);
 
-  // ---- Spacecraft position ----
+  // ---- Spacecraft position (in live mode, interpolate from trajectory for visual consistency) ----
   useEffect(() => {
-    if (sceneCoreRef.current && spacecraftState) {
-      sceneCoreRef.current.updateSpacecraft(spacecraftState);
+    const core = sceneCoreRef.current;
+    if (!core) return;
+
+    const { playbackTime } = usePlaybackStore.getState();
+    // Only update from live data when in LIVE mode (not playback)
+    if (playbackTime !== null) return; // playback loop handles this
+
+    if (trajectory) {
+      // Interpolate from trajectory for visual alignment with the path
+      const allPoints = [...trajectory.past, ...trajectory.future];
+      if (allPoints.length >= 2) {
+        const interpolated = interpolateState(allPoints, Date.now());
+        if (interpolated) {
+          core.updateSpacecraft(interpolated);
+          return;
+        }
+      }
     }
-  }, [spacecraftState]);
+
+    // Fallback: use live AROW data directly
+    if (spacecraftState) {
+      core.updateSpacecraft(spacecraftState);
+    }
+  }, [spacecraftState, trajectory]);
 
   // ---- Full mission trajectory ----
   useEffect(() => {
@@ -183,23 +203,24 @@ function ThreeScene({
       const { playbackTime } = usePlaybackStore.getState();
       const core = sceneCoreRef.current;
 
-      if (core && playbackTime !== null) {
-        // Interpolate spacecraft position from trajectory
+      if (core) {
+        // Use playback time or current time for interpolation
+        const t = playbackTime ?? Date.now();
         const allPoints = trajectory
           ? [...trajectory.past, ...trajectory.future]
           : history;
 
         if (allPoints.length >= 2) {
-          const interpolated = interpolateState(allPoints, playbackTime);
+          const interpolated = interpolateState(allPoints, t);
           if (interpolated) {
             core.updateSpacecraft(interpolated);
           }
         }
 
-        // Update moon and sun for playback time
-        const playbackDate = new Date(playbackTime);
-        core.updateMoonTime(playbackDate);
-        core.updateSunTime(playbackDate);
+        // Update moon and sun
+        const date = new Date(t);
+        core.updateMoonTime(date);
+        core.updateSunTime(date);
       }
 
       playbackRafRef.current = requestAnimationFrame(playbackLoop);
