@@ -9,50 +9,17 @@ const COLOR_OLD = new THREE.Color(0x0a3050);
 /** Earth surface in scene units (just above visual radius). */
 const EARTH_SURFACE_SU = 6.5;
 
-/** Minimum distance from Earth center — clamp interpolated points.
- *  Set above the visual Earth+atmosphere radius (~6.8 su) to prevent
- *  the spline from dipping through the globe. */
-const EARTH_CLAMP_RADIUS = 8.5;
-
 /**
- * Smooth trajectory using centripetal Catmull-Rom, then clamp any
- * interpolated points that dip inside Earth outward to the surface.
+ * Smooth trajectory using centripetal Catmull-Rom.
+ * With 1284 data points at 10-min intervals the spline is precise
+ * enough that no clamping or post-processing is needed.
  */
 function smoothPoints(raw: THREE.Vector3[], maxOutput: number): THREE.Vector3[] {
   if (raw.length < 4) return raw;
 
   const curve = new THREE.CatmullRomCurve3(raw, false, 'centripetal', 0.5);
   const divisions = Math.min(maxOutput, raw.length * 4);
-  const points = curve.getPoints(divisions);
-
-  // Clamp points inside Earth outward to surface
-  for (const p of points) {
-    const r = p.length();
-    if (r > 0.1 && r < EARTH_CLAMP_RADIUS) {
-      p.multiplyScalar(EARTH_CLAMP_RADIUS / r);
-    }
-  }
-
-  // Smooth out any kinks created by clamping (moving average on clamped region)
-  for (let pass = 0; pass < 3; pass++) {
-    for (let i = 1; i < points.length - 1; i++) {
-      const r = points[i]!.length();
-      // Only smooth points near the clamp radius (within 20% margin)
-      if (r < EARTH_CLAMP_RADIUS * 1.2) {
-        const prev = points[i - 1]!;
-        const next = points[i + 1]!;
-        const smoothed = new THREE.Vector3().addVectors(prev, next).multiplyScalar(0.5);
-        // Re-clamp after averaging
-        const sr = smoothed.length();
-        if (sr > 0.1 && sr < EARTH_CLAMP_RADIUS) {
-          smoothed.multiplyScalar(EARTH_CLAMP_RADIUS / sr);
-        }
-        points[i]!.lerp(smoothed, 0.5);
-      }
-    }
-  }
-
-  return points;
+  return curve.getPoints(divisions);
 }
 
 /**

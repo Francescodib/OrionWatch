@@ -3,38 +3,12 @@ import { eciToScene } from '../utils/coordinates';
 import { MAX_TRAJECTORY_POINTS } from '../utils/lod';
 
 const EARTH_SURFACE_SU = 6.5;
-const EARTH_CLAMP_RADIUS = 8.5;
 
 function smoothPoints(raw: THREE.Vector3[], maxOutput: number): THREE.Vector3[] {
   if (raw.length < 4) return raw;
   const curve = new THREE.CatmullRomCurve3(raw, false, 'centripetal', 0.5);
   const divisions = Math.min(maxOutput, raw.length * 4);
-  const points = curve.getPoints(divisions);
-
-  for (const p of points) {
-    const r = p.length();
-    if (r > 0.1 && r < EARTH_CLAMP_RADIUS) {
-      p.multiplyScalar(EARTH_CLAMP_RADIUS / r);
-    }
-  }
-
-  for (let pass = 0; pass < 3; pass++) {
-    for (let i = 1; i < points.length - 1; i++) {
-      const r = points[i]!.length();
-      if (r < EARTH_CLAMP_RADIUS * 1.2) {
-        const prev = points[i - 1]!;
-        const next = points[i + 1]!;
-        const smoothed = new THREE.Vector3().addVectors(prev, next).multiplyScalar(0.5);
-        const sr = smoothed.length();
-        if (sr > 0.1 && sr < EARTH_CLAMP_RADIUS) {
-          smoothed.multiplyScalar(EARTH_CLAMP_RADIUS / sr);
-        }
-        points[i]!.lerp(smoothed, 0.5);
-      }
-    }
-  }
-
-  return points;
+  return curve.getPoints(divisions);
 }
 
 /**
