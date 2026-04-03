@@ -290,9 +290,9 @@ function ThreeScene({
       {/* Locate craft button */}
       <button
         onClick={handleLocateCraft}
-        className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-space-bg/80 backdrop-blur-sm border border-cyan/30 hover:border-cyan/60 text-[9px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded-sm cursor-pointer flex items-center gap-1"
+        className="absolute bottom-10 right-3 z-10 px-3 py-1.5 bg-space-bg/90 backdrop-blur-sm border border-cyan/40 hover:border-cyan/70 text-[10px] font-mono text-cyan uppercase tracking-wider hover:bg-cyan/10 transition-colors rounded cursor-pointer flex items-center gap-1.5 shadow-[0_0_8px_rgba(0,212,255,0.15)]"
       >
-        <Locate size={10} />
+        <Locate size={12} />
         Locate Craft
       </button>
 
