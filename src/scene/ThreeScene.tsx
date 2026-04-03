@@ -3,6 +3,7 @@ import type { SpacecraftState } from '@/data/targets/types';
 import type { TrajectoryData } from '@/data/adapters/horizons';
 import { SceneCore } from './SceneCore';
 import { usePlaybackStore } from '@/store/usePlaybackStore';
+import { useTelemetryStore } from '@/store/useTelemetryStore';
 import { ZoomIn, ZoomOut, RotateCcw, Locate } from 'lucide-react';
 
 interface SceneLabel {
@@ -214,6 +215,10 @@ function ThreeScene({
           const interpolated = interpolateState(allPoints, t);
           if (interpolated) {
             core.updateSpacecraft(interpolated);
+            // During playback, feed interpolated state to sidebar telemetry
+            if (playbackTime !== null) {
+              useTelemetryStore.getState().setState(interpolated);
+            }
           }
         }
 
