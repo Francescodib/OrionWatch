@@ -27,10 +27,10 @@ export function EpicEarth() {
             loading="lazy"
           />
           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-space-bg/80 to-transparent p-1.5">
-            <span className="text-[7px] font-mono text-text-muted">{dateStr} UTC</span>
+            <span className="text-[9px] font-mono text-text-muted">{dateStr} UTC</span>
           </div>
         </div>
-        <p className="text-[6px] font-mono text-text-muted/50 text-center">
+        <p className="text-[9px] font-mono text-text-muted/50 text-center">
           NASA EPIC / DSCOVR L1
         </p>
       </div>

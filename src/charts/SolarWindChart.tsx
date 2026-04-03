@@ -90,18 +90,18 @@ export default function SolarWindChart({ data }: SolarWindChartProps) {
       <div className="flex items-center gap-4 mt-1.5 px-1">
         <div className="flex items-center gap-1.5">
           <span className="w-4 h-px bg-cyan inline-block" />
-          <span className="text-[8px] font-mono text-text-muted">
+          <span className="text-[9px] font-mono text-text-muted">
             Bt {latestBt != null ? `${latestBt.toFixed(1)} nT` : ""}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-4 h-px bg-amber inline-block border-dashed" style={{ borderTop: "1.5px dashed var(--color-amber)", background: "none" }} />
-          <span className="text-[8px] font-mono text-text-muted">
+          <span className="text-[9px] font-mono text-text-muted">
             Bz {latestBz != null ? `${latestBz.toFixed(1)} nT` : ""}
           </span>
         </div>
       </div>
-      <p className="text-[7px] font-mono text-text-muted/50 mt-1 px-1">
+      <p className="text-[9px] font-mono text-text-muted/50 mt-1 px-1">
         Bz &lt; 0 (southward) = geomagnetically active
       </p>
     </div>

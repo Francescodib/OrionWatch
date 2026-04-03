@@ -22,34 +22,34 @@ function DishIndicator({ dish }: { dish: DsnDish }) {
       {/* Antenna icon */}
       <div className="w-6 flex flex-col items-center shrink-0">
         <Satellite size={12} className={dish.isActive ? "text-green motion-safe:animate-pulse" : "text-text-muted/30"} />
-        <div className="text-[6px] font-mono text-text-muted leading-none mt-0.5">{dish.name.replace("DSS", "")}</div>
+        <div className="text-[9px] font-mono text-text-muted leading-none mt-0.5">{dish.name.replace("DSS", "")}</div>
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[8px] font-mono font-bold text-text-primary truncate">
+          <span className="text-[9px] font-mono font-bold text-text-primary truncate">
             {dish.name}
           </span>
           {targetNames && (
-            <span className="text-[7px] font-mono text-cyan truncate">
+            <span className="text-[9px] font-mono text-cyan truncate">
               {targetNames}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2 mt-0.5">
           {activeDown.length > 0 && (
-            <span className="text-[7px] font-mono text-green flex items-center gap-0.5">
+            <span className="text-[9px] font-mono text-green flex items-center gap-0.5">
               <ArrowDown size={8} /> {formatDataRate(maxDownRate)}
             </span>
           )}
           {activeUp.length > 0 && (
-            <span className="text-[7px] font-mono text-amber flex items-center gap-0.5">
+            <span className="text-[9px] font-mono text-amber flex items-center gap-0.5">
               <ArrowUp size={8} /> UL
             </span>
           )}
           {!dish.isActive && (
-            <span className="text-[7px] font-mono text-text-muted italic truncate">
+            <span className="text-[9px] font-mono text-text-muted italic truncate">
               {dish.activity || "Idle"}
             </span>
           )}
@@ -57,7 +57,7 @@ function DishIndicator({ dish }: { dish: DsnDish }) {
       </div>
 
       {/* Elevation */}
-      <div className="text-[7px] font-mono text-text-muted tabular-nums shrink-0">
+      <div className="text-[9px] font-mono text-text-muted tabular-nums shrink-0">
         {dish.elevation.toFixed(0)}°
       </div>
     </div>
@@ -79,7 +79,7 @@ function StationBlock({ station }: { station: DsnStation }) {
           {station.friendlyName}
           <span className="text-text-muted/40 ml-1">{stationAbbr[station.friendlyName] ?? ""}</span>
         </span>
-        <span className="text-[7px] font-mono text-text-muted tabular-nums">
+        <span className="text-[9px] font-mono text-text-muted tabular-nums">
           {activeDishes.length}/{station.dishes.length}
         </span>
       </div>
@@ -88,7 +88,7 @@ function StationBlock({ station }: { station: DsnStation }) {
           .sort((a, b) => (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0))
           .map((dish) => <DishIndicator key={dish.name} dish={dish} />)
       ) : (
-        <p className="text-[7px] font-mono text-text-muted/40 py-1">No dishes reporting</p>
+        <p className="text-[9px] font-mono text-text-muted/40 py-1">No dishes reporting</p>
       )}
     </div>
   );
@@ -144,7 +144,7 @@ export function DsnPanel() {
           <StationBlock key={station.name} station={station} />
         ))}
 
-        <p className="text-[6px] font-mono text-text-muted/40 text-center">
+        <p className="text-[9px] font-mono text-text-muted/40 text-center">
           Data: NASA/JPL Deep Space Network
         </p>
       </div>

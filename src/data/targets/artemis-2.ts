@@ -1,4 +1,20 @@
-import type { MissionTarget } from "./types";
+import type { MissionTarget, SpacecraftState } from "./types";
+import { fetchArowState } from "@/data/adapters/arow";
+import { fetchHorizonsState } from "@/data/adapters/horizons";
+
+/**
+ * Fetch Artemis II state: try NASA AROW first (CORS-native, live Mission
+ * Control data), fall back to JPL Horizons via CORS proxy chain.
+ */
+async function fetchArtemis2State(): Promise<SpacecraftState> {
+  try {
+    return await fetchArowState();
+  } catch {
+    // AROW unavailable — fall back to Horizons
+    const result = await fetchHorizonsState("-1024", "500@399");
+    return result.state;
+  }
+}
 
 export const artemis2: MissionTarget = {
   id: "artemis-2",
@@ -18,7 +34,12 @@ export const artemis2: MissionTarget = {
   },
 
   telemetry: {
-    source: "horizons",
+    source: "custom",
+    custom: {
+      fetchFn: fetchArtemis2State,
+      intervalMs: 30_000, // 30s — AROW updates every ~60s
+    },
+    // Keep Horizons config for trajectory fetch (full mission path)
     horizons: {
       commandId: "-1024",
       center: "500@399",

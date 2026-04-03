@@ -131,7 +131,7 @@ function ThreeScene({
           label.visible ? (
             <span
               key={label.text}
-              className="absolute text-[7px] font-mono uppercase tracking-wider px-1 rounded-sm bg-space-bg/40 whitespace-nowrap"
+              className="absolute text-[9px] font-mono uppercase tracking-wider px-1 rounded-sm bg-space-bg/40 whitespace-nowrap"
               style={{
                 left: label.x,
                 top: label.y,
@@ -163,7 +163,7 @@ function ThreeScene({
 
       {/* Orbit hint */}
       <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
-        <span className="text-[8px] font-mono text-text-muted/40 tracking-wider uppercase">
+        <span className="text-[9px] font-mono text-text-muted/40 tracking-wider uppercase">
           drag to orbit
         </span>
       </div>

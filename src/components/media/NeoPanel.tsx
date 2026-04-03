@@ -25,23 +25,23 @@ export function NeoPanel() {
           <span className="text-[8px] font-heading uppercase tracking-[0.12em] text-text-muted">Today</span>
           <div className="flex items-center gap-2">
             <span className="font-mono text-[14px] font-bold text-cyan tabular-nums">{data.count}</span>
-            <span className="text-[8px] font-mono text-text-muted">objects</span>
+            <span className="text-[9px] font-mono text-text-muted">objects</span>
           </div>
         </div>
 
         {data.hazardousCount > 0 && (
           <div className="flex items-center gap-1.5 text-amber">
             <span className="text-[9px]">&#9888;</span>
-            <span className="text-[8px] font-mono font-bold">{data.hazardousCount} potentially hazardous</span>
+            <span className="text-[9px] font-mono font-bold">{data.hazardousCount} potentially hazardous</span>
           </div>
         )}
 
         <div className="bg-space-bg/60 border border-space-border/20 rounded px-2 py-1.5">
-          <div className="text-[7px] font-mono text-text-muted uppercase mb-0.5">Closest Approach</div>
+          <div className="text-[9px] font-mono text-text-muted uppercase mb-0.5">Closest Approach</div>
           <div className="text-[9px] font-mono font-bold text-text-primary truncate">{data.closestName}</div>
           <div className="flex items-center gap-3 mt-0.5">
-            <span className="text-[8px] font-mono text-cyan tabular-nums">{formatDist(data.closestDistanceKm)}</span>
-            <span className="text-[8px] font-mono text-text-muted tabular-nums">{data.closestSpeedKmS.toFixed(1)} km/s</span>
+            <span className="text-[9px] font-mono text-cyan tabular-nums">{formatDist(data.closestDistanceKm)}</span>
+            <span className="text-[9px] font-mono text-text-muted tabular-nums">{data.closestSpeedKmS.toFixed(1)} km/s</span>
           </div>
         </div>
       </div>

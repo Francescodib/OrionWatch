@@ -27,4 +27,4 @@ export const MOON_SEGMENTS: Record<PerformanceTier, number> = {
 };
 
 /** Maximum trajectory points kept in the buffer. */
-export const MAX_TRAJECTORY_POINTS = 600;
+export const MAX_TRAJECTORY_POINTS = 6000;

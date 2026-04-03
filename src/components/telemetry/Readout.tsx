@@ -22,7 +22,7 @@ export function Readout({ label, value, unit, accent = "cyan", icon }: ReadoutPr
           {value}
         </span>
         {unit && (
-          <span className="text-[8px] font-mono text-text-muted uppercase">{unit}</span>
+          <span className="text-[9px] font-mono text-text-muted uppercase">{unit}</span>
         )}
       </div>
     </div>

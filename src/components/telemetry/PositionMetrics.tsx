@@ -38,7 +38,7 @@ export function PositionMetrics({
           {phase.current}
         </div>
         {phase.next && (
-          <div className="text-[8px] font-mono text-text-muted mt-1 flex items-center gap-1.5">
+          <div className="text-[9px] font-mono text-text-muted mt-1 flex items-center gap-1.5">
             <ArrowRight size={8} className="text-amber shrink-0" />
             <span className="truncate">{phase.next.label}</span>
             <span className="text-amber ml-auto shrink-0">
@@ -50,7 +50,7 @@ export function PositionMetrics({
 
       {/* Primary metrics */}
       <div className="border-l-2 border-cyan/20 pl-3">
-        <div className="text-[7px] font-heading uppercase tracking-widest text-text-muted/40 mb-1">Primary</div>
+        <div className="text-[9px] font-heading uppercase tracking-widest text-text-muted/40 mb-1">Primary</div>
         <Readout label="Dst Earth" value={earthDist.value} unit={earthDist.unit} icon={<Crosshair size={10} />} />
         {showMoonDistance && (
           <Readout label="Dst Moon" value={moonDist.value} unit={moonDist.unit} icon={<Moon size={10} />} />
@@ -61,7 +61,7 @@ export function PositionMetrics({
 
       {/* Derived metrics */}
       <div className="border-l-2 border-amber/20 pl-3">
-        <div className="text-[7px] font-heading uppercase tracking-widest text-text-muted/40 mb-1">Derived</div>
+        <div className="text-[9px] font-heading uppercase tracking-widest text-text-muted/40 mb-1">Derived</div>
         <Readout label="Signal Delay" value={signal.value} unit={signal.unit} accent="amber" icon={<Radio size={10} />} />
         <Readout label="G-Force" value={gForce} unit="g" icon={<Activity size={10} />} />
         {cumDist > 0 && (

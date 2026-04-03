@@ -88,22 +88,22 @@ export default function KpIndexChart({ data }: KpIndexChartProps) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-sm inline-block" style={{ background: CHART_COLORS.green, opacity: 0.8 }} />
-            <span className="text-[7px] font-mono text-text-muted">0-3</span>
+            <span className="text-[9px] font-mono text-text-muted">0-3</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-sm inline-block" style={{ background: "#ddaa00", opacity: 0.8 }} />
-            <span className="text-[7px] font-mono text-text-muted">4</span>
+            <span className="text-[9px] font-mono text-text-muted">4</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-sm inline-block" style={{ background: CHART_COLORS.amber, opacity: 0.8 }} />
-            <span className="text-[7px] font-mono text-text-muted">5-6</span>
+            <span className="text-[9px] font-mono text-text-muted">5-6</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-sm inline-block" style={{ background: CHART_COLORS.red, opacity: 0.8 }} />
-            <span className="text-[7px] font-mono text-text-muted">7-9</span>
+            <span className="text-[9px] font-mono text-text-muted">7-9</span>
           </div>
         </div>
-        <span className="text-[8px] font-mono font-bold" style={{ color: level.color }}>
+        <span className="text-[9px] font-mono font-bold" style={{ color: level.color }}>
           Kp {latestKp} — {level.label}
         </span>
       </div>

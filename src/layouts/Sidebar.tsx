@@ -112,7 +112,7 @@ export function Sidebar() {
 
           {/* Attribution */}
           <div className="mt-auto pt-3 border-t border-space-border/30">
-            <p className="text-[6px] text-text-muted/50 font-mono leading-relaxed uppercase tracking-wider">
+            <p className="text-[9px] text-text-muted/50 font-mono leading-relaxed uppercase tracking-wider">
               Data: NASA/JPL, NOAA/SWPC
               <br />
               Textures: Solar System Scope (CC-BY 4.0)

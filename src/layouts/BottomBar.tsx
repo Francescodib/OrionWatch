@@ -15,7 +15,9 @@ export function BottomBar() {
           SOURCE:{" "}
           {activeTarget.telemetry.source === "horizons"
             ? `JPL HORIZONS ${activeTarget.telemetry.horizons?.commandId ?? ""}`
-            : activeTarget.telemetry.source.toUpperCase()}
+            : activeTarget.id === "artemis-2"
+              ? "NASA AROW"
+              : activeTarget.telemetry.source.toUpperCase()}
         </span>
       </div>
       <div className="flex items-center gap-4 text-[9px] font-mono text-text-muted">

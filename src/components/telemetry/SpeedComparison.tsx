@@ -27,7 +27,7 @@ export function SpeedComparison({ speedKmS }: SpeedComparisonProps) {
 
         return (
           <div key={item.label} className="flex items-center gap-2">
-            <span className={`text-[7px] font-mono w-[52px] text-right shrink-0 ${isCurrent ? "text-cyan font-bold" : "text-text-muted"}`}>
+            <span className={`text-[9px] font-mono w-[52px] text-right shrink-0 ${isCurrent ? "text-cyan font-bold" : "text-text-muted"}`}>
               {item.label}
             </span>
             <div className="flex-1 h-1.5 bg-space-bg/60 rounded-full overflow-hidden">
@@ -36,13 +36,13 @@ export function SpeedComparison({ speedKmS }: SpeedComparisonProps) {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className={`text-[7px] font-mono tabular-nums w-[44px] shrink-0 ${isCurrent ? "text-cyan font-bold" : "text-text-muted"}`}>
+            <span className={`text-[9px] font-mono tabular-nums w-[44px] shrink-0 ${isCurrent ? "text-cyan font-bold" : "text-text-muted"}`}>
               {item.kmS.toFixed(1)}
             </span>
           </div>
         );
       })}
-      <p className="text-[6px] font-mono text-text-muted/40 text-right">km/s</p>
+      <p className="text-[9px] font-mono text-text-muted/40 text-right">km/s</p>
     </div>
   );
 }

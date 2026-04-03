@@ -60,7 +60,7 @@ export function RadiationEstimate({ distanceFromEarthKm, kpIndex, solarWindSpeed
         <span className="text-[8px] font-heading uppercase tracking-[0.12em] text-text-muted">
           Radiation Est.
         </span>
-        <span className={`text-[8px] font-mono font-bold ${level.color}`}>
+        <span className={`text-[9px] font-mono font-bold ${level.color}`}>
           {level.label}
         </span>
       </div>
@@ -68,9 +68,9 @@ export function RadiationEstimate({ distanceFromEarthKm, kpIndex, solarWindSpeed
         <span className={`font-mono text-[14px] font-bold tabular-nums ${level.color}`}>
           {dailyMsv.toFixed(2)}
         </span>
-        <span className="text-[8px] font-mono text-text-muted">mSv/day</span>
+        <span className="text-[9px] font-mono text-text-muted">mSv/day</span>
       </div>
-      <p className="text-[6px] font-mono text-text-muted/40 mt-1">
+      <p className="text-[9px] font-mono text-text-muted/40 mt-1">
         Estimate based on distance + Kp + solar wind. Not for medical use.
       </p>
     </div>

@@ -84,6 +84,7 @@ export function TelemetryProvider() {
           const state = await telemetry.custom.fetchFn();
           if (targetIdRef.current !== expectedTargetId) return;
           setState(state);
+          setCorsStrategy("direct");
           failCountRef.current = 0;
         }
       } catch (err) {
@@ -124,7 +125,7 @@ export function TelemetryProvider() {
     const telemetry = activeTarget.telemetry;
     const { launchDate, splashdownDate } = activeTarget.spacecraft;
 
-    if (telemetry.source === "horizons" && telemetry.horizons && splashdownDate) {
+    if (telemetry.horizons && splashdownDate) {
       setTrajectoryLoading(true);
       trajectoryControllerRef.current = new AbortController();
       const signal = trajectoryControllerRef.current.signal;

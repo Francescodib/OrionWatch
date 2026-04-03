@@ -61,17 +61,17 @@ export function SpaceWeatherPanel({ enabled }: SpaceWeatherPanelProps) {
           <div className="flex gap-4 px-1">
             {windSpeed != null && (
               <div>
-                <div className="text-[7px] font-heading uppercase tracking-[0.12em] text-text-muted">Solar Wind</div>
+                <div className="text-[9px] font-heading uppercase tracking-[0.12em] text-text-muted">Solar Wind</div>
                 <div className="font-mono text-[12px] font-bold text-cyan tabular-nums">
-                  {Math.round(windSpeed)} <span className="text-[8px] text-text-muted font-normal">km/s</span>
+                  {Math.round(windSpeed)} <span className="text-[9px] text-text-muted font-normal">km/s</span>
                 </div>
               </div>
             )}
             {windDensity != null && (
               <div>
-                <div className="text-[7px] font-heading uppercase tracking-[0.12em] text-text-muted">Proton Density</div>
+                <div className="text-[9px] font-heading uppercase tracking-[0.12em] text-text-muted">Proton Density</div>
                 <div className="font-mono text-[12px] font-bold text-green tabular-nums">
-                  {windDensity.toFixed(1)} <span className="text-[8px] text-text-muted font-normal">p/cm³</span>
+                  {windDensity.toFixed(1)} <span className="text-[9px] text-text-muted font-normal">p/cm³</span>
                 </div>
               </div>
             )}
@@ -100,7 +100,7 @@ export function SpaceWeatherPanel({ enabled }: SpaceWeatherPanelProps) {
                   {latest.maxClass}
                 </span>
               </div>
-              <div className="text-[7px] font-mono text-text-muted mt-0.5">
+              <div className="text-[9px] font-mono text-text-muted mt-0.5">
                 Peak: {latest.maxTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} UTC
                 {latest.endTime ? ` — Ended ${latest.endTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : " — Ongoing"}
               </div>
@@ -148,7 +148,7 @@ function AuroraSection() {
       </div>
       <div className="flex items-center gap-3">
         <div>
-          <span className="text-[7px] font-mono text-text-muted">Visible above</span>
+          <span className="text-[9px] font-mono text-text-muted">Visible above</span>
           <div className="text-[9px] font-mono font-bold text-text-primary tabular-nums">
             {Math.abs(data.northLatitude).toFixed(0)}°N / {Math.abs(data.southLatitude).toFixed(0)}°S
           </div>
@@ -159,7 +159,7 @@ function AuroraSection() {
             style={{ width: `${Math.min(100, intensity)}%` }}
           />
         </div>
-        <span className="text-[8px] font-mono text-text-muted tabular-nums">{intensity}%</span>
+        <span className="text-[9px] font-mono text-text-muted tabular-nums">{intensity}%</span>
       </div>
     </div>
   );

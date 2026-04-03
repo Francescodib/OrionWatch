@@ -98,7 +98,7 @@ export function OrbitalElements({ state }: OrbitalElementsProps) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between py-0.5">
-      <span className="text-[7px] font-mono text-text-muted uppercase">{label}</span>
+      <span className="text-[9px] font-mono text-text-muted uppercase">{label}</span>
       <span className="text-[9px] font-mono font-bold text-text-primary tabular-nums">{value}</span>
     </div>
   );

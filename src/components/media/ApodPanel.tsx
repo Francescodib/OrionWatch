@@ -34,11 +34,11 @@ export function ApodPanel() {
           <h4 className="text-[9px] font-heading font-bold text-text-primary leading-tight">
             {data.title}
           </h4>
-          <p className="text-[7px] font-mono text-text-muted mt-0.5 line-clamp-2">
+          <p className="text-[9px] font-mono text-text-muted mt-0.5 line-clamp-2">
             {data.explanation.slice(0, 150)}...
           </p>
         </div>
-        <p className="text-[6px] font-mono text-text-muted/40">NASA APOD — {data.date}</p>
+        <p className="text-[9px] font-mono text-text-muted/40">NASA APOD — {data.date}</p>
       </div>
     </Panel>
   );

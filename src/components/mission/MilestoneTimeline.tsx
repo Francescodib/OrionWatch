@@ -108,12 +108,12 @@ export function MilestoneTimeline({ milestones }: MilestoneTimelineProps) {
           return (
             <div key={m.id} className="flex flex-col items-center max-w-[90px]">
               <span
-                className={`text-[8px] font-mono uppercase text-center leading-tight tracking-wider
+                className={`text-[9px] font-mono uppercase text-center leading-tight tracking-wider
                   ${isPast ? "text-text-secondary" : "text-text-muted"}`}
               >
                 {m.label}
               </span>
-              <span className={`text-[7px] font-mono mt-0.5 ${isPast ? "text-green/60" : "text-amber/60"}`}>
+              <span className={`text-[9px] font-mono mt-0.5 ${isPast ? "text-green/60" : "text-amber/60"}`}>
                 {isPast ? (
                   new Date(m.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric" })
                 ) : (

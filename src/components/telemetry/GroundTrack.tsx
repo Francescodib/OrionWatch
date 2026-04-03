@@ -62,23 +62,23 @@ export function GroundTrack({ state }: GroundTrackProps) {
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <span className="text-[8px] font-heading uppercase tracking-[0.12em] text-text-muted">Sub-Spacecraft Point</span>
-        <span className="text-[8px] font-mono text-cyan">{region}</span>
+        <span className="text-[9px] font-mono text-cyan">{region}</span>
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <div className="text-[7px] font-mono text-text-muted uppercase">Lat</div>
+          <div className="text-[9px] font-mono text-text-muted uppercase">Lat</div>
           <div className="text-[10px] font-mono font-bold text-text-primary tabular-nums">
             {formatCoord(geo.lat, "N", "S")}
           </div>
         </div>
         <div>
-          <div className="text-[7px] font-mono text-text-muted uppercase">Lon</div>
+          <div className="text-[9px] font-mono text-text-muted uppercase">Lon</div>
           <div className="text-[10px] font-mono font-bold text-text-primary tabular-nums">
             {formatCoord(geo.lon, "E", "W")}
           </div>
         </div>
         <div>
-          <div className="text-[7px] font-mono text-text-muted uppercase">Alt</div>
+          <div className="text-[9px] font-mono text-text-muted uppercase">Alt</div>
           <div className="text-[10px] font-mono font-bold text-text-primary tabular-nums">
             {geo.alt >= 1e6 ? `${(geo.alt / 1e6).toFixed(1)}M` : geo.alt >= 1000 ? `${(geo.alt / 1000).toFixed(0)}k` : Math.round(geo.alt).toLocaleString()} km
           </div>
@@ -103,14 +103,14 @@ function AngularSizes({ distEarthKm, distMoonKm }: { distEarthKm: number; distMo
   return (
     <div className="flex items-center gap-4 pt-1 border-t border-space-border/15">
       <div className="flex items-center gap-1.5">
-        <span className="text-[7px] font-mono text-text-muted uppercase">Earth</span>
+        <span className="text-[9px] font-mono text-text-muted uppercase">Earth</span>
         <span className="text-[9px] font-mono font-bold text-cyan tabular-nums">{earthAngStr}</span>
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="text-[7px] font-mono text-text-muted uppercase">Moon</span>
+        <span className="text-[9px] font-mono text-text-muted uppercase">Moon</span>
         <span className="text-[9px] font-mono font-bold text-text-primary tabular-nums">{moonAngStr}</span>
       </div>
-      <span className="text-[6px] font-mono text-text-muted/40 ml-auto">angular size</span>
+      <span className="text-[9px] font-mono text-text-muted/40 ml-auto">angular size</span>
     </div>
   );
 }
