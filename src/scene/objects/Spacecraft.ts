@@ -2,8 +2,11 @@ import * as THREE from 'three';
 import { eciToScene } from '../utils/coordinates';
 
 /**
- * Spacecraft marker rendered as an elongated capsule oriented along
- * the velocity vector, with a point light for glow and a highlight ring.
+ * Spacecraft marker with:
+ * - Elongated capsule oriented along velocity
+ * - Permanent cockpit-style ring (always visible, yellow)
+ * - Point light for glow
+ * - Locate highlight pulse on demand
  */
 export class SpacecraftObject {
   readonly group: THREE.Group;
@@ -15,11 +18,16 @@ export class SpacecraftObject {
   private previousPosition = new THREE.Vector3();
   private hasVelocity = false;
 
-  // ---- Highlight ring ----
+  // ---- Cockpit ring (always visible) ----
   private readonly ringGeometry: THREE.RingGeometry;
   private readonly ringMaterial: THREE.MeshBasicMaterial;
   private readonly ringMesh: THREE.Mesh;
-  private highlightProgress = 0; // 0 = inactive, >0 = animating (0..1 range over 2s)
+
+  // ---- Locate highlight (pulsing outer ring) ----
+  private readonly highlightGeometry: THREE.RingGeometry;
+  private readonly highlightMaterial: THREE.MeshBasicMaterial;
+  private readonly highlightMesh: THREE.Mesh;
+  private highlightProgress = 0;
   private highlightActive = false;
 
   constructor() {
@@ -32,36 +40,43 @@ export class SpacecraftObject {
       metalness: 0.6,
     });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-    // Orient capsule so it points forward (along Z by default)
     this.mesh.rotation.x = Math.PI / 2;
 
     this.light = new THREE.PointLight(0x00d4ff, 1, 5);
 
-    // Highlight ring — billboard that faces camera
-    this.ringGeometry = new THREE.RingGeometry(0.8, 1.0, 32);
+    // Permanent cockpit ring — thin, always visible
+    this.ringGeometry = new THREE.RingGeometry(0.6, 0.7, 32);
     this.ringMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffdd00,
+      transparent: true,
+      opacity: 0.4,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    this.ringMesh = new THREE.Mesh(this.ringGeometry, this.ringMaterial);
+
+    // Locate highlight — larger, pulsing
+    this.highlightGeometry = new THREE.RingGeometry(1.0, 1.3, 32);
+    this.highlightMaterial = new THREE.MeshBasicMaterial({
       color: 0xffdd00,
       transparent: true,
       opacity: 0,
       side: THREE.DoubleSide,
       depthWrite: false,
     });
-    this.ringMesh = new THREE.Mesh(this.ringGeometry, this.ringMaterial);
+    this.highlightMesh = new THREE.Mesh(this.highlightGeometry, this.highlightMaterial);
 
     this.group = new THREE.Group();
     this.group.add(this.mesh);
     this.group.add(this.light);
     this.group.add(this.ringMesh);
+    this.group.add(this.highlightMesh);
   }
 
-  /**
-   * Set the spacecraft position from ECI coordinates.
-   */
   updatePosition(positionKm: [number, number, number], compressed: boolean): void {
     const [sx, sy, sz] = eciToScene(positionKm, compressed);
     const newPos = new THREE.Vector3(sx, sy, sz);
 
-    // Orient along velocity vector (direction of travel)
     const delta = new THREE.Vector3().subVectors(newPos, this.previousPosition);
     if (delta.lengthSq() > 0.001) {
       const target = new THREE.Vector3().addVectors(newPos, delta.normalize());
@@ -75,37 +90,34 @@ export class SpacecraftObject {
     this.group.position.copy(newPos);
   }
 
-  /**
-   * Trigger a highlight pulse — opacity fades from 0 to 0.7 and back over ~2 seconds.
-   */
   highlight(): void {
     this.highlightActive = true;
     this.highlightProgress = 0;
   }
 
-  /**
-   * Animate — gentle spin when no velocity data, highlight fade, ring billboard.
-   */
   update(camera?: THREE.Camera): void {
     if (!this.hasVelocity) {
       this.mesh.rotation.y += 0.01;
     }
 
-    // Billboard: make ring face camera
+    // Billboard: both rings face camera
     if (camera) {
       this.ringMesh.quaternion.copy(camera.quaternion);
+      this.highlightMesh.quaternion.copy(camera.quaternion);
     }
 
-    // Highlight animation (~2 seconds at 60fps = 120 frames)
+    // Cockpit ring gentle pulse
+    this.ringMaterial.opacity = 0.3 + 0.15 * Math.sin(performance.now() * 0.002);
+
+    // Locate highlight animation
     if (this.highlightActive) {
-      this.highlightProgress += 1 / 120; // ~2s at 60fps
+      this.highlightProgress += 1 / 120;
       if (this.highlightProgress >= 1) {
         this.highlightActive = false;
         this.highlightProgress = 0;
-        this.ringMaterial.opacity = 0;
+        this.highlightMaterial.opacity = 0;
       } else {
-        // Sine curve: 0 -> 0.7 -> 0
-        this.ringMaterial.opacity = 0.7 * Math.sin(this.highlightProgress * Math.PI);
+        this.highlightMaterial.opacity = 0.8 * Math.sin(this.highlightProgress * Math.PI);
       }
     }
   }
@@ -115,6 +127,8 @@ export class SpacecraftObject {
     this.material.dispose();
     this.ringGeometry.dispose();
     this.ringMaterial.dispose();
+    this.highlightGeometry.dispose();
+    this.highlightMaterial.dispose();
     this.light.dispose();
     this.group.clear();
   }

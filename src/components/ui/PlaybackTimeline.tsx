@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { usePlaybackStore } from "@/store/usePlaybackStore";
 import { Play, Pause, Radio } from "lucide-react";
 
-const SPEED_OPTIONS = [1, 10, 100, 1000] as const;
+const SPEED_OPTIONS = [100, 500, 1000, 5000] as const;
 
 function formatShortDate(epoch: number): string {
   const d = new Date(epoch);

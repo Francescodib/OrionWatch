@@ -304,7 +304,7 @@ export class SceneCore {
     // Set orbit target to craft position
     this.controls.target.copy(craftPos);
     // Position camera offset from craft
-    const offset = new THREE.Vector3(5, 4, 5);
+    const offset = new THREE.Vector3(15, 12, 15);
     this.camera.position.copy(craftPos).add(offset);
     this.controls.update();
     // Trigger highlight animation
