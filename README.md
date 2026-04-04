@@ -208,9 +208,26 @@ src/
   styles/           # globals.css, animations.css
 ```
 
+## Data Credits
+
+This dashboard aggregates publicly available data from the following sources:
+
+- **[NASA AROW](https://arow.nasa.gov/)** — Artemis Real-time Operations Window, live telemetry from Mission Control
+- **[JPL Horizons](https://ssd.jpl.nasa.gov/horizons/)** — Spacecraft and celestial body ephemeris (NASA/JPL-Caltech)
+- **[NOAA SWPC](https://www.swpc.noaa.gov/)** — Space weather: solar wind, Kp index, solar flares, aurora forecast
+- **[NASA DSN Now](https://eyes.nasa.gov/dsn/dsn.html)** — Deep Space Network antenna status (NASA/JPL)
+- **[NASA EPIC/DSCOVR](https://epic.gsfc.nasa.gov/)** — Earth imagery from Lagrange point L1
+- **[NASA APOD](https://apod.nasa.gov/)** — Astronomy Picture of the Day
+- **[NASA Images API](https://images.nasa.gov/)** — Mission photography archive
+- **[NASA NEO API](https://api.nasa.gov/)** — Near Earth Object tracking
+- **[CelesTrak](https://celestrak.org/)** — TLE orbital data for ISS tracking
+- **[NASA Artemis Blog](https://blogs.nasa.gov/artemis/)** — Mission updates via RSS
+
+Earth and Moon textures courtesy of [NASA Visible Earth](https://visibleearth.nasa.gov/).
+
 ## Author
 
-**Francesco di Biase**
+**Francesco di Biase** — [francescodibiase.com](https://www.francescodibiase.com)
 
 ## License
 
