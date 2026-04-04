@@ -1,5 +1,7 @@
 # OrionWatch
 
+**[Live Demo → www.francescodibiase.com/orionwatch](https://www.francescodibiase.com/orionwatch/)**
+
 Real-time space mission dashboard tracking Artemis II and other active spacecraft. Built as a pure frontend SPA consuming only public APIs — no backend, no auth, no secrets.
 
 ![OrionWatch Dashboard](https://img.shields.io/badge/status-live-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue) ![React](https://img.shields.io/badge/React-19-61dafb) ![Three.js](https://img.shields.io/badge/Three.js-0.172-black)
