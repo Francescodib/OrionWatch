@@ -8,7 +8,7 @@ import {
   Tooltip,
   ReferenceLine,
 } from "recharts";
-import { CHART_COLORS, CHART_MARGINS, CHART_FONT } from "./theme";
+import { CHART_COLORS, CHART_FONT } from "./theme";
 import type { SolarWindSample } from "@/data/targets/types";
 
 interface SolarWindChartProps {
@@ -35,7 +35,7 @@ export default function SolarWindChart({ data }: SolarWindChartProps) {
   return (
     <div>
       <ResponsiveContainer width="100%" height={160}>
-        <LineChart data={chartData} margin={CHART_MARGINS}>
+        <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
           <XAxis
             dataKey="time"

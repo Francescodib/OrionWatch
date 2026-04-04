@@ -9,7 +9,7 @@ import {
   Tooltip,
   ReferenceLine,
 } from "recharts";
-import { CHART_COLORS, CHART_MARGINS, CHART_FONT } from "./theme";
+import { CHART_COLORS, CHART_FONT } from "./theme";
 import type { KpIndexSample } from "@/data/targets/types";
 
 interface KpIndexChartProps {
@@ -47,7 +47,7 @@ export default function KpIndexChart({ data }: KpIndexChartProps) {
   return (
     <div>
       <ResponsiveContainer width="100%" height={120}>
-        <BarChart data={chartData} margin={CHART_MARGINS}>
+        <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
           <XAxis
             dataKey="time"

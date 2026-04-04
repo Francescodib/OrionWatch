@@ -8,7 +8,7 @@ import {
   Tooltip,
   ReferenceLine,
 } from "recharts";
-import { CHART_COLORS, CHART_MARGINS, CHART_FONT } from "./theme";
+import { CHART_COLORS, CHART_FONT } from "./theme";
 import type { SpacecraftState } from "@/data/targets/types";
 import type { TrajectoryData } from "@/data/adapters/horizons";
 
@@ -76,7 +76,7 @@ export default function DistanceChart({
 
   return (
     <ResponsiveContainer width="100%" height={200}>
-      <AreaChart data={chartData} margin={CHART_MARGINS}>
+      <AreaChart data={chartData} margin={{ top: 5, right: 25, bottom: 5, left: 0 }}>
         <defs>
           <linearGradient id="earthProfileGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={CHART_COLORS.cyan} stopOpacity={0.25} />
@@ -95,13 +95,13 @@ export default function DistanceChart({
           stroke={CHART_COLORS.axis}
           tick={{ fill: CHART_COLORS.axis, ...CHART_FONT }}
           tickFormatter={timeFormatter}
-          minTickGap={50}
+          minTickGap={30}
         />
         <YAxis
           type="number"
           stroke={CHART_COLORS.axis}
           tick={{ fill: CHART_COLORS.axis, ...CHART_FONT }}
-          width={50}
+          width={38}
           domain={yDomain ?? [0, "auto"]}
           allowDataOverflow={!!yDomain}
           tickFormatter={formatDistance}

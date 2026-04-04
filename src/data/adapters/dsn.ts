@@ -51,18 +51,24 @@ export async function fetchDsnStatus(signal?: AbortSignal): Promise<DsnData> {
 
   const stations: DsnStation[] = [];
 
-  const stationEls = doc.querySelectorAll("station");
-  stationEls.forEach((stEl) => {
-    const stName = stEl.getAttribute("name") ?? "";
-    const friendlyName = stEl.getAttribute("friendlyName") ?? stName;
-    const dishes: DsnDish[] = [];
+  // DSN XML uses flat siblings: <station/>, <dish/>, <dish/>, <station/>, <dish/>...
+  // Each dish belongs to the preceding station element.
+  const children = [...doc.documentElement.children];
+  let currentStation: DsnStation | null = null;
 
-    const dishEls = stEl.querySelectorAll("dish");
-    dishEls.forEach((dEl) => {
+  for (const el of children) {
+    if (el.tagName === "station") {
+      currentStation = {
+        name: el.getAttribute("name") ?? "",
+        friendlyName: el.getAttribute("friendlyName") ?? el.getAttribute("name") ?? "",
+        dishes: [],
+      };
+      stations.push(currentStation);
+    } else if (el.tagName === "dish" && currentStation) {
       const targets: DsnTarget[] = [];
       const signals: DsnSignal[] = [];
 
-      dEl.querySelectorAll("target").forEach((tEl) => {
+      el.querySelectorAll("target").forEach((tEl) => {
         targets.push({
           name: tEl.getAttribute("name") ?? "",
           id: parseInt(tEl.getAttribute("id") ?? "0"),
@@ -72,7 +78,7 @@ export async function fetchDsnStatus(signal?: AbortSignal): Promise<DsnData> {
         });
       });
 
-      dEl.querySelectorAll("upSignal").forEach((sEl) => {
+      el.querySelectorAll("upSignal").forEach((sEl) => {
         signals.push({
           direction: "up",
           active: sEl.getAttribute("active") === "true",
@@ -84,7 +90,7 @@ export async function fetchDsnStatus(signal?: AbortSignal): Promise<DsnData> {
         });
       });
 
-      dEl.querySelectorAll("downSignal").forEach((sEl) => {
+      el.querySelectorAll("downSignal").forEach((sEl) => {
         signals.push({
           direction: "down",
           active: sEl.getAttribute("active") === "true",
@@ -98,20 +104,18 @@ export async function fetchDsnStatus(signal?: AbortSignal): Promise<DsnData> {
 
       const hasActiveSignal = signals.some((s) => s.active);
 
-      dishes.push({
-        name: dEl.getAttribute("name") ?? "",
-        station: friendlyName,
-        azimuth: parseFloat(dEl.getAttribute("azimuthAngle") ?? "0"),
-        elevation: parseFloat(dEl.getAttribute("elevationAngle") ?? "0"),
-        activity: dEl.getAttribute("activity") ?? "",
+      currentStation.dishes.push({
+        name: el.getAttribute("name") ?? "",
+        station: currentStation.friendlyName,
+        azimuth: parseFloat(el.getAttribute("azimuthAngle") ?? "0"),
+        elevation: parseFloat(el.getAttribute("elevationAngle") ?? "0"),
+        activity: el.getAttribute("activity") ?? "",
         targets: targets.filter((t) => t.name !== "DSN"),
         signals,
         isActive: hasActiveSignal,
       });
-    });
-
-    stations.push({ name: stName, friendlyName, dishes });
-  });
+    }
+  }
 
   return { stations, timestamp: new Date() };
 }

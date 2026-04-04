@@ -78,6 +78,50 @@ Real-time space mission dashboard tracking Artemis II and other active spacecraf
 | Icons | Lucide React |
 | Orbital | satellite.js 5 (ISS only, dynamic import) |
 
+## Technical Solutions
+
+### Dual Data Pipeline: AROW + Horizons
+
+The dashboard consumes two complementary data sources for Artemis II. **NASA AROW** (Artemis Real-time Operations Window) provides live Mission Control telemetry via Google Cloud Storage — CORS-native, no proxy needed, updated every ~60 seconds with actual flight data (position, velocity in feet, converted to metric). **JPL Horizons** provides pre-computed ephemeris with 10-minute resolution for the full 10-day mission arc. AROW drives the sidebar telemetry numbers (real measurements); Horizons drives the 3D trajectory and spacecraft visualization (smooth, self-consistent path). This avoids the ~43,000 km offset between actual vs predicted ephemeris that would cause the craft to visually detach from its trajectory.
+
+### Server-Side Trajectory Collection
+
+Horizons API doesn't support browser CORS reliably. Instead of runtime proxies, PHP cron jobs (`cron/record-telemetry.php`, `cron/backfill-trajectory.php`) pre-fetch trajectory data server-side and write static JSON files (`trajectory-full.json` with 1,284 records, `moon-trajectory.json` with 428 records). The frontend loads these once — no repeated API calls, no CORS issues, instant availability.
+
+### Cubic Hermite Interpolation for Playback
+
+Horizons data comes at 10-minute intervals. Naive linear interpolation produces visible speed pulsing during playback. The solution uses **cubic Hermite splines** with velocity tangents at both endpoints:
+
+```
+H(t) = (2t³-3t²+1)·p₀ + (t³-2t²+t)·v₀·Δt + (-2t³+3t²)·p₁ + (t³-t²)·v₁·Δt
+```
+
+This leverages the velocity vectors already present in the state data to produce physically smooth C¹-continuous motion between samples.
+
+### Centripetal Catmull-Rom Trajectory Rendering
+
+The 3D trajectory line uses centripetal parameterization (α=0.5) for Catmull-Rom spline subdivision. Standard uniform Catmull-Rom produces cusps and overshoots near Earth where data points are dense and the orbit curves sharply. Centripetal parameterization distributes control points by the square root of chord length, eliminating the trajectory-through-Earth artifact that uniform splines produce near perigee.
+
+### Real Lunar Orbital Plane
+
+Distance reference rings and Moon orbit are aligned to the **actual lunar orbital plane**, computed from the cross product of two real Moon position vectors (from Horizons body 301 data). This replaces a hardcoded 28.5° inclination approximation and ensures rings visually match the Moon's true path throughout the mission.
+
+### External Time Control Pattern
+
+The 3D scene (`SceneCore`) runs its own animation loop for real-time rendering. During playback, a separate RAF loop in `ThreeScene` controls Moon/Sun positions at simulated time. Without coordination, both loops would fight over Moon position — causing visible jumping. The `externalTimeControl` flag gates SceneCore's own Moon/Sun updates, giving the playback loop exclusive control during simulation.
+
+### Texture Loading without CORS Headers
+
+Shared hosting doesn't send CORS headers for static assets. Three.js `TextureLoader` sets `crossOrigin="anonymous"` by default, which triggers a CORS preflight that fails. The fix bypasses TextureLoader entirely: textures load via a raw `new Image()` element (no crossOrigin attribute), then wrap as `new THREE.Texture(img)`. The browser loads the image as a simple same-origin request.
+
+### Performance: Pre-allocated Objects & Throttled Updates
+
+The playback loop runs at 60fps but only writes to Zustand telemetry store at ~4Hz (every 15th frame) and updates Sun position every 30th frame. Trajectory point arrays are cached in refs to avoid re-spreading every frame. Three.js geometries use pre-allocated `BufferGeometry` with direct position updates instead of creating new objects. This keeps heap allocation flat over long playback sessions.
+
+### Responsive Bloomberg Layout
+
+Desktop (xl+) uses a 3-column layout inspired by Bloomberg Terminal: dense telemetry sidebar (w-64), maximized 3D scene with playback controls, and a right panel with all secondary data (Mission Profile, Space Weather, DSN) — zero tabs, everything visible simultaneously. Below xl, content falls back to a tabbed interface. Mobile uses a bottom-sheet drawer triggered by hamburger menu. All critical data is visible without scrolling on desktop.
+
 ## Data Sources
 
 | Source | API | Update Rate |
