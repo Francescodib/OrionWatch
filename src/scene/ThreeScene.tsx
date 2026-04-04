@@ -4,6 +4,7 @@ import type { TrajectoryData } from '@/data/adapters/horizons';
 import { SceneCore } from './SceneCore';
 import { usePlaybackStore } from '@/store/usePlaybackStore';
 import { useTelemetryStore } from '@/store/useTelemetryStore';
+import { fetchMoonTrajectory, interpolateMoonPosition } from '@/data/adapters/moon-trajectory';
 import { ZoomIn, ZoomOut, RotateCcw, Locate, Crosshair } from 'lucide-react';
 
 interface SceneLabel {
@@ -106,6 +107,7 @@ function ThreeScene({
   const [labels, setLabels] = useState<SceneLabel[]>([]);
   const playbackFrameCount = useRef(0);
   const allPointsCacheRef = useRef<SpacecraftState[]>([]);
+  const moonDataRef = useRef<{ t: number; p: [number, number, number] }[]>([]);
 
   // ---- Mount / unmount ----
   useEffect(() => {
@@ -205,6 +207,20 @@ function ThreeScene({
     }
   }, [trajectory, history]);
 
+  // ---- Load real Moon trajectory from Horizons data ----
+  useEffect(() => {
+    fetchMoonTrajectory().then((data) => {
+      moonDataRef.current = data;
+      // Set distance rings plane from first and mid Moon positions
+      const core = sceneCoreRef.current;
+      if (core && data.length >= 10) {
+        const first = data[0]!.p;
+        const mid = data[Math.floor(data.length / 2)]!.p;
+        core.setDistanceRingsPlane(first, mid);
+      }
+    });
+  }, []);
+
   // ---- Cache allPoints for playback loop (avoid re-spreading every frame) ----
   useEffect(() => {
     allPointsCacheRef.current = trajectory
@@ -228,9 +244,12 @@ function ThreeScene({
 
       const { playbackTime } = usePlaybackStore.getState();
       const core = sceneCoreRef.current;
+      const isPlayback = playbackTime !== null;
 
       if (core) {
-        // Use playback time or current time for interpolation
+        // Tell SceneCore not to update moon/sun with real time when we control it
+        core.setExternalTimeControl(isPlayback);
+
         const t = playbackTime ?? Date.now();
         const allPoints = allPointsCacheRef.current;
 
@@ -240,18 +259,27 @@ function ThreeScene({
           const interpolated = interpolateState(allPoints, t);
           if (interpolated) {
             core.updateSpacecraft(interpolated);
-            // During playback, feed interpolated state to sidebar telemetry (throttled to ~4Hz)
-            if (playbackTime !== null && playbackFrameCount.current % 15 === 0) {
+            // Sidebar telemetry throttled to ~4Hz
+            if (isPlayback && playbackFrameCount.current % 15 === 0) {
               useTelemetryStore.getState().setState(interpolated);
             }
           }
         }
 
-        // Update moon and sun only during playback, throttled to every 60 frames
-        if (playbackTime !== null && playbackFrameCount.current % 60 === 0) {
-          const date = new Date(t);
-          core.updateMoonTime(date);
-          core.updateSunTime(date);
+        // Moon: use real Horizons data if available, fallback to analytical
+        const moonData = moonDataRef.current;
+        if (moonData.length > 0) {
+          const moonPos = interpolateMoonPosition(moonData, t);
+          if (moonPos) {
+            core.updateMoonPositionKm(moonPos);
+          }
+        } else if (isPlayback) {
+          core.updateMoonTime(new Date(t));
+        }
+
+        // Sun: only during playback, every 30 frames
+        if (isPlayback && playbackFrameCount.current % 30 === 0) {
+          core.updateSunTime(new Date(t));
         }
       }
 

@@ -53,6 +53,8 @@ export class SceneCore {
 
   // ---- Tracking ----
   private tracking = false;
+  /** When true, ThreeScene playback loop controls moon/sun — SceneCore skips. */
+  private externalTimeControl = false;
 
   // ---- Starfield ----
   private starfield: THREE.Points;
@@ -307,6 +309,11 @@ export class SceneCore {
   /**
    * Point camera at the spacecraft and trigger a highlight pulse.
    */
+  /** When true, SceneCore skips its own moon/sun updates (playback loop handles them). */
+  setExternalTimeControl(on: boolean): void {
+    this.externalTimeControl = on;
+  }
+
   /** Toggle tracking mode: camera follows the spacecraft. */
   setTracking(on: boolean): void {
     this.tracking = on;
@@ -340,6 +347,19 @@ export class SceneCore {
   updateMoonTime(date: Date): void {
     if (this.moon) {
       this.moon.updatePosition(date, this.compressed);
+    }
+  }
+
+  /** Set the orbital plane for distance rings from two Moon positions. */
+  setDistanceRingsPlane(pos1Km: [number, number, number], pos2Km: [number, number, number]): void {
+    this.distanceRings.setOrbitalPlaneFromMoonPositions(pos1Km, pos2Km);
+    this.distanceRings.buildRings(this.compressed);
+  }
+
+  /** Set Moon position from real Horizons data (km). */
+  updateMoonPositionKm(posKm: [number, number, number]): void {
+    if (this.moon) {
+      this.moon.setPositionKm(posKm, this.compressed);
     }
   }
 
@@ -452,12 +472,12 @@ export class SceneCore {
     this.earth.update(this.camera);
     this.spacecraft.update(this.camera);
 
-    if (this.moon && this.frameCount % 60 === 0) {
+    if (this.moon && this.frameCount % 60 === 0 && !this.externalTimeControl) {
       this.moon.updatePosition(new Date(), this.compressed);
     }
 
     // Update sun direction every 600 frames (barely changes)
-    if (this.frameCount % 600 === 0) {
+    if (this.frameCount % 600 === 0 && !this.externalTimeControl) {
       this.updateSunTime(new Date());
     }
 

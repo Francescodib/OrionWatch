@@ -20,22 +20,39 @@ const RING_DEFS: RingDef[] = [
 
 const SEGMENTS = 128;
 
-/**
- * Approximate orbital inclination for Artemis II in radians (~28.5 deg).
- * This tilts the distance rings to align with the trajectory plane.
- */
-const ORBITAL_INCLINATION_RAD = 28.5 * (Math.PI / 180);
-
 export class DistanceRings {
   readonly group: THREE.Group;
   private geometries: THREE.BufferGeometry[] = [];
   private materials: THREE.LineDashedMaterial[] = [];
+
+  /** Normal of the orbital plane (set from Moon data). */
+  private planeNormal = new THREE.Vector3(0, 1, 0);
+  /** One axis in the plane. */
+  private planeAxisX = new THREE.Vector3(1, 0, 0);
+  /** Other axis in the plane. */
+  private planeAxisY = new THREE.Vector3(0, 0, 1);
 
   /** Label data for overlay (populated after buildRings) */
   labels: { x: number; y: number; z: number; text: string; color: string }[] = [];
 
   constructor() {
     this.group = new THREE.Group();
+  }
+
+  /**
+   * Set the orbital plane from two Moon positions (km).
+   * The plane is defined by the cross product of the two position vectors.
+   */
+  setOrbitalPlaneFromMoonPositions(pos1Km: [number, number, number], pos2Km: [number, number, number]): void {
+    const v1 = new THREE.Vector3(pos1Km[0], pos1Km[1], pos1Km[2]);
+    const v2 = new THREE.Vector3(pos2Km[0], pos2Km[1], pos2Km[2]);
+
+    // Normal = cross product of two position vectors
+    this.planeNormal.crossVectors(v1, v2).normalize();
+
+    // Build orthonormal basis in the plane
+    this.planeAxisX.copy(v1).normalize();
+    this.planeAxisY.crossVectors(this.planeNormal, this.planeAxisX).normalize();
   }
 
   buildRings(compressed: boolean): void {
@@ -52,14 +69,10 @@ export class DistanceRings {
       for (let i = 0; i <= SEGMENTS; i++) {
         const angle = (i / SEGMENTS) * Math.PI * 2;
 
-        // Generate ring on the orbital plane (inclined from equatorial XY)
-        const xFlat = def.distanceKm * Math.cos(angle);
-        const yFlat = def.distanceKm * Math.sin(angle);
-
-        // Rotate by inclination around the X axis (tilt Y into Z)
-        const xKm = xFlat;
-        const yKm = yFlat * Math.cos(ORBITAL_INCLINATION_RAD);
-        const zKm = yFlat * Math.sin(ORBITAL_INCLINATION_RAD);
+        // Generate point on the orbital plane using the basis vectors
+        const xKm = def.distanceKm * (this.planeAxisX.x * Math.cos(angle) + this.planeAxisY.x * Math.sin(angle));
+        const yKm = def.distanceKm * (this.planeAxisX.y * Math.cos(angle) + this.planeAxisY.y * Math.sin(angle));
+        const zKm = def.distanceKm * (this.planeAxisX.z * Math.cos(angle) + this.planeAxisY.z * Math.sin(angle));
 
         const [sx, sy, sz] = eciToScene([xKm, yKm, zKm], compressed);
         points.push(new THREE.Vector3(sx, sy, sz));
@@ -84,7 +97,10 @@ export class DistanceRings {
       this.materials.push(material);
 
       // Label at angle=0 on the ring
-      const [lx, ly, lz] = eciToScene([def.distanceKm, 0, 0], compressed);
+      const lxKm = def.distanceKm * this.planeAxisX.x;
+      const lyKm = def.distanceKm * this.planeAxisX.y;
+      const lzKm = def.distanceKm * this.planeAxisX.z;
+      const [lx, ly, lz] = eciToScene([lxKm, lyKm, lzKm], compressed);
       const colorHex = def.color === 0xff6b35 ? "#ff6b35" : "#667788";
       this.labels.push({ x: lx, y: ly + 0.8, z: lz, text: def.label, color: colorHex });
     }

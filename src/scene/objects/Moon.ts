@@ -74,6 +74,14 @@ export class MoonObject {
   }
 
   /**
+   * Set Moon position directly from km coordinates (from Horizons data).
+   */
+  setPositionKm(posKm: [number, number, number], compressed: boolean): void {
+    const [sx, sy, sz] = eciToScene(posKm, compressed);
+    this.group.position.set(sx, sy, sz);
+  }
+
+  /**
    * Build or rebuild the orbit ring geometry for the current compression mode.
    */
   buildOrbitRing(compressed: boolean): void {
