@@ -75,3 +75,10 @@ body {
   background: rgba(0, 212, 255, 0.2);
   color: var(--color-text-primary);
 }
+
+/* Mobile: allow vertical scroll through 3D canvas */
+@media (max-width: 639px) {
+  canvas {
+    touch-action: pan-y !important;
+  }
+}

@@ -2,11 +2,11 @@ import { useTargetStore } from "@/store/useTargetStore";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { MissionTimer } from "@/components/telemetry/MissionTimer";
 import { StatusDot } from "@/components/ui/StatusDot";
-import { Menu, Satellite, Wifi, WifiOff } from "lucide-react";
+import { Satellite, Wifi, WifiOff } from "lucide-react";
 
 export function TopBar() {
   const { activeTarget } = useTargetStore();
-  const { corsStrategy, toggleSidebar } = useDashboardStore();
+  const { corsStrategy } = useDashboardStore();
 
   return (
     <header className="h-10 bg-space-surface/80 backdrop-blur-sm border-b border-space-border flex items-center justify-between px-4 shrink-0 relative">
@@ -15,13 +15,6 @@ export function TopBar() {
 
       {/* Left: branding + target */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={toggleSidebar}
-          className="sm:hidden w-10 h-10 flex items-center justify-center text-text-muted hover:text-cyan -ml-2 cursor-pointer"
-          aria-label="Toggle sidebar"
-        >
-          <Menu size={18} />
-        </button>
         <Satellite size={14} className="text-cyan" />
         <h1 className="font-heading text-sm font-bold tracking-[0.2em] text-cyan uppercase">
           OrionWatch

@@ -24,19 +24,13 @@ export function Sidebar() {
   return (
     <aside
       className={`
-        fixed inset-x-0 bottom-0 z-40 max-h-[70vh] rounded-t-xl transition-transform duration-300
-        ${sidebarOpen ? "translate-y-0" : "translate-y-full"}
-        sm:static sm:inset-auto sm:z-auto sm:max-h-none sm:rounded-none sm:translate-y-0 sm:transition-[width] sm:duration-200
-        bg-space-surface/95 sm:bg-space-surface/60 backdrop-blur-md sm:backdrop-blur-sm
-        border-t sm:border-t-0 border-r border-space-border
-        flex flex-col shrink-0
+        hidden sm:flex flex-col shrink-0
+        bg-space-surface/60 backdrop-blur-sm
+        border-r border-space-border
+        transition-[width] duration-200
         ${sidebarOpen ? "sm:w-64" : "sm:w-10"}
       `}
     >
-      {/* Mobile drag handle */}
-      <div className="sm:hidden flex justify-center py-2 shrink-0">
-        <div className="w-10 h-1 rounded-full bg-text-muted/30" />
-      </div>
 
       {/* Toggle button (desktop only) */}
       <button
