@@ -156,7 +156,7 @@ export function BottomBar() {
           <span>ORIONWATCH v1.0</span>
           <button
             onClick={toggleAck}
-            className="flex items-center gap-1 text-text-muted hover:text-cyan transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-cyan/70 hover:text-cyan transition-colors cursor-pointer border border-cyan/20 hover:border-cyan/50 rounded-sm px-1.5 py-0.5 hover:bg-cyan/5"
           >
             <Info size={9} />
             <span className="hidden sm:inline">ACKNOWLEDGMENTS</span>
