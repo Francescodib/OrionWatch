@@ -2,7 +2,7 @@
 
 **[Live Demo → www.francescodibiase.com/orionwatch](https://www.francescodibiase.com/orionwatch/)**
 
-Real-time space mission dashboard tracking Artemis II and other active spacecraft. Built as a pure frontend SPA consuming only public APIs — no backend, no auth, no secrets.
+Real-time space mission dashboard built around **Artemis II**, the first crewed Lunar flyby since Apollo. Tracks spacecraft position, velocity, space weather, and Deep Space Network antenna status — live, directly from public NASA APIs. Pure frontend SPA, no backend, no auth, no secrets.
 
 ![OrionWatch Dashboard](https://img.shields.io/badge/status-live-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue) ![React](https://img.shields.io/badge/React-19-61dafb) ![Three.js](https://img.shields.io/badge/Three.js-0.172-black)
 
@@ -23,8 +23,8 @@ Real-time space mission dashboard tracking Artemis II and other active spacecraf
 ## Features
 
 ### Mission Tracking
-- **6 mission targets**: Artemis II (live), Artemis I (historical), ISS, Voyager 1, James Webb Space Telescope, Demo (offline)
-- **Real-time telemetry** from JPL Horizons API: position, velocity, distance from Earth/Moon
+- **Primary target**: Artemis II — live crewed Lunar flyby (April 2026)
+- **Real-time telemetry** from NASA AROW + JPL Horizons: position, velocity, distance from Earth/Moon
 - **Derived metrics**: Mach number, signal delay, G-force, cumulative path distance, mission progress %
 - **Orbital elements**: semi-major axis, eccentricity, inclination, period, periapsis/apoapsis
 - **Ground track**: sub-spacecraft latitude/longitude with region identification
@@ -122,7 +122,7 @@ The playback loop runs at 60fps but only writes to Zustand telemetry store at ~4
 
 ### Responsive Bloomberg Layout
 
-Desktop (xl+) uses a 3-column layout inspired by Bloomberg Terminal: dense telemetry sidebar (w-64), maximized 3D scene with playback controls, and a right panel with all secondary data (Mission Profile, Space Weather, DSN) — zero tabs, everything visible simultaneously. Below xl, content falls back to a tabbed interface. Mobile uses a bottom-sheet drawer triggered by hamburger menu. All critical data is visible without scrolling on desktop.
+Desktop (xl+) uses a 3-column layout inspired by Bloomberg Terminal: dense telemetry sidebar (w-64), maximized 3D scene with playback controls, and a right panel with all secondary data (Mission Profile, Space Weather, DSN) — zero tabs, everything visible simultaneously. Tablet falls back to sidebar + tabbed content. Mobile uses a scrollable accordion layout: each data section (Telemetry, Orbital, Mission Profile, Space Weather, DSN, Media) is an independently collapsible panel — no hamburger drawer, no hidden content, app-like navigation.
 
 ## Data Sources
 
@@ -200,7 +200,7 @@ src/
   scene/            # Three.js: SceneCore, Earth, Moon, Spacecraft, Trajectory, DistanceRings
   charts/           # SolarWindChart, KpIndexChart, DistanceChart
   data/
-    targets/        # Mission configs: artemis-2, artemis-1, iss, voyager-1, webb, demo
+    targets/        # Mission config: artemis-2 (primary) + demo fallback
     adapters/       # API parsers: horizons, noaa, dsn, epic, neo, apod, aurora, solar-flares
     hooks/          # useSpaceWeather, useDsn, useExtraData
     utils/          # CORS fallback, polling
@@ -224,6 +224,19 @@ This dashboard aggregates publicly available data from the following sources:
 - **[NASA Artemis Blog](https://blogs.nasa.gov/artemis/)** — Mission updates via RSS
 
 Earth and Moon textures courtesy of [NASA Visible Earth](https://visibleearth.nasa.gov/).
+
+## Roadmap
+
+The target configuration system supports multiple missions through a single `MissionTarget` schema — switching targets requires no code changes, only a config entry. The following are planned as future targets once Artemis II concludes:
+
+| Target | Source | Notes |
+|---|---|---|
+| **Artemis I** | JPL Horizons (historical) | Full 2022 mission arc for replay |
+| **ISS** | CelesTrak TLE + SGP4 | Always-live, real-time orbital propagation via satellite.js |
+| **Voyager 1** | JPL Horizons `-31` | Deepest human-made object, interstellar space |
+| **James Webb** | JPL Horizons `-170` | L2 halo orbit around Sun-Earth Lagrange point |
+
+The `demo` target (fully simulated, zero network) is always available as an offline fallback.
 
 ## Author
 
