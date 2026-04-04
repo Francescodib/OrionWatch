@@ -80,22 +80,21 @@ export class EarthObject {
    * keeps its fallback blue colour.
    */
   loadTexture(): void {
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin("");
     const url = `${import.meta.env.BASE_URL || "/"}textures/earth_2k.jpg`;
-    loader.load(
-      url,
-      (texture) => {
-        texture.colorSpace = THREE.SRGBColorSpace;
-        this.material.map = texture;
-        this.material.color.set(0xffffff);
-        this.material.needsUpdate = true;
-      },
-      undefined,
-      (err) => {
-        console.warn("Earth texture failed:", url, err);
-      },
-    );
+    const img = new Image();
+    // Do NOT set img.crossOrigin — server has no CORS headers
+    img.onload = () => {
+      const texture = new THREE.Texture(img);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.needsUpdate = true;
+      this.material.map = texture;
+      this.material.color.set(0xffffff);
+      this.material.needsUpdate = true;
+    };
+    img.onerror = () => {
+      console.warn("Earth texture failed:", url);
+    };
+    img.src = url;
   }
 
   /**

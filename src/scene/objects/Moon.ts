@@ -60,21 +60,17 @@ export class MoonObject {
    * Asynchronously load the Moon texture.  Gray fallback until loaded.
    */
   loadTexture(): void {
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin("");
-    loader.load(
-      `${import.meta.env.BASE_URL || "/"}textures/moon_2k.jpg`,
-      (texture) => {
-        texture.colorSpace = THREE.SRGBColorSpace;
-        this.material.map = texture;
-        this.material.color.set(0xffffff);
-        this.material.needsUpdate = true;
-      },
-      undefined,
-      () => {
-        // Texture load failed -- keep fallback colour.
-      },
-    );
+    const url = `${import.meta.env.BASE_URL || "/"}textures/moon_2k.jpg`;
+    const img = new Image();
+    img.onload = () => {
+      const texture = new THREE.Texture(img);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.needsUpdate = true;
+      this.material.map = texture;
+      this.material.color.set(0xffffff);
+      this.material.needsUpdate = true;
+    };
+    img.src = url;
   }
 
   /**
