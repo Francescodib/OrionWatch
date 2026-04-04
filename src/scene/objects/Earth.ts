@@ -81,6 +81,7 @@ export class EarthObject {
    */
   loadTexture(): void {
     const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("");
     const url = `${import.meta.env.BASE_URL || "/"}textures/earth_2k.jpg`;
     loader.load(
       url,

@@ -40,7 +40,7 @@ export function BottomBar() {
           </span>
         )}
         <span>ORIONWATCH v1.0</span>
-        <span>powered by        <a
+        <span>A project by        <a
           href="https://francescodibiase.com"
           target="_blank"
           rel="noopener noreferrer"
